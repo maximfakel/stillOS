@@ -503,8 +503,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 s.setSpring(new SpringForce().setStiffness(1400f).setDampingRatio(0.95f));
                 s.setMinimumVisibleChange(1.5f);
             } else {
-                s.setSpring(new SpringForce().setStiffness(advancedEffects ? 320f : 260f)
-                        .setDampingRatio(advancedEffects ? 0.76f : 0.58f));
+                // B3: a calm glide. Almost no overshoot (0.9) and quick to settle; the old 0.58 swung past the
+                // tile and wobbled back.
+                s.setSpring(new SpringForce().setStiffness(600f).setDampingRatio(0.9f));
             }
         }
 

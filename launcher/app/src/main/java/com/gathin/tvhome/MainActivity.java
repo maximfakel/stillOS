@@ -2479,7 +2479,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                         String deviceLabel = name == null || name.length() == 0 ? label : name + " \u00B7 " + label;
                         final String deviceId = device.getId();
                         int state = hdmiStateBogus ? -1 : tim.getInputState(deviceId);
-                        addInputRow(rows, popup, R.drawable.ic_menu_hdmi, deviceLabel, state, deviceId, () -> openInput(deviceId));
+                        addInputRow(rows, popup, R.drawable.ic_menu_hdmi, deviceLabel, state, () -> openInput(deviceId));
                     }
                     continue;
                 }
@@ -2489,13 +2489,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 // Analog AV jacks have no hotplug detection, and some TVs report them as always connected
                 // (TCL Smart TV Pro G03 says "Connected" with nothing plugged in), so AV rows show no state.
                 int state = !hdmi || hdmiStateBogus ? -1 : tim.getInputState(id);
-                addInputRow(rows, popup, hdmi ? R.drawable.ic_menu_hdmi : R.drawable.ic_menu_av, label, state, id,
+                addInputRow(rows, popup, hdmi ? R.drawable.ic_menu_hdmi : R.drawable.ic_menu_av, label, state,
                         () -> openInput(id));
             }
         }
         // Nothing to list where there is no TvInputManager: the TV's own source panel switches inputs.
         if (rows.getChildCount() == 0 && !sourcePanelService.isEmpty()) {
-            addInputRow(rows, popup, R.drawable.ic_menu_hdmi, getString(R.string.inputs), -1, "panel", this::openSourcePanel);
+            addInputRow(rows, popup, R.drawable.ic_menu_hdmi, getString(R.string.inputs), -1, this::openSourcePanel);
         }
         Intent liveTv = liveTvIntent();
         if (liveTv != null && tunerId != null) {
@@ -2512,7 +2512,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (liveTv != null) {
             final Intent liveTvIntent = liveTv;
-            addInputRow(rows, popup, R.drawable.ic_menu_livetv, getString(R.string.live_tv), -1, "livetv", () -> open(liveTvIntent));
+            addInputRow(rows, popup, R.drawable.ic_menu_livetv, getString(R.string.live_tv), -1, () -> open(liveTvIntent));
         }
         if (rows.getChildCount() == 0) {
             Toast.makeText(this, R.string.no_inputs, Toast.LENGTH_SHORT).show();
@@ -2525,10 +2525,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         int alignment = getResources().getBoolean(R.bool.rtl_menu_bar) ? Gravity.END : Gravity.START;
         dropIn(popup, panel, anchor, alignment);
-        // Focus starts on the checked (last chosen) input, as the reference opens on its selected item.
-        View start = rows.getChildAt(0);
-        for (int i = 0; i < rows.getChildCount(); i++) if (rows.getChildAt(i).isActivated()) start = rows.getChildAt(i);
-        start.requestFocus();
+        rows.getChildAt(0).requestFocus();
     }
 
     private PopupWindow glassPopup(View panel, int width) {
@@ -2565,17 +2562,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void addInputRow(LinearLayout rows, PopupWindow popup, int iconRes, String title, int state, Runnable action) {
-        addInputRow(rows, popup, iconRes, title, state, null, action);
-    }
-
-    /** An Inputs row; key names it for the check mark: the input last chosen here is the selected row. */
-    private void addInputRow(LinearLayout rows, PopupWindow popup, int iconRes, String title, int state, String key,
-                             Runnable action) {
         View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
-        SharedPreferences inputPrefs = getSharedPreferences("inputs", MODE_PRIVATE);
-        boolean selected = key != null && key.equals(inputPrefs.getString("last", null));
-        row.setActivated(selected);
-        row.findViewById(R.id.check).setVisibility(selected ? View.VISIBLE : View.GONE);
         ((ImageView) row.findViewById(R.id.icon)).setImageResource(iconRes);
         ((TextView) row.findViewById(R.id.title)).setText(title);
         TextView status = row.findViewById(R.id.status);
@@ -2593,7 +2580,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             dot.setVisibility(View.GONE);
         }
         row.setOnClickListener(v -> {
-            if (key != null) inputPrefs.edit().putString("last", key).apply();
             popup.dismiss();
             action.run();
         });

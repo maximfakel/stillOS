@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Dropdown row: 16.5dp Untitled UI icon, the label, an optional status and the check of the selected row.
+<!-- Dropdown row: 16.5dp Untitled UI icon, the label and an optional status.
      36dp tall like the header items; text and icon grey, white when focused or selected. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -51,12 +51,4 @@
         android:textSize="11.25sp"
         android:fontFamily="@font/outfit_regular" />
 
-    <ImageView
-        android:id="@+id/check"
-        android:layout_width="16.5dp"
-        android:layout_height="16.5dp"
-        android:visibility="gone"
-        android:tint="#FFF5F5F5"
-        android:src="@drawable/ic_menu_check"
-        android:contentDescription="@null" />
 </LinearLayout>

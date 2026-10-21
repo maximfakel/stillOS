@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Dropdown row: 16.5dp Untitled UI icon, the label, an optional status and the check of the selected row.
+     36dp tall like the header items; text and icon grey, white when focused or selected. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="42dp"
+    android:layout_height="36dp"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingStart="12dp"
-    android:paddingEnd="12dp"
-    android:background="@drawable/input_row_bg"
+    android:paddingStart="8.25dp"
+    android:paddingEnd="8.25dp"
+    android:background="@drawable/dropdown_row_bg"
     android:focusable="true"
     android:clickable="true">
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:tint="@drawable/pill_text"
+        android:layout_width="16.5dp"
+        android:layout_height="16.5dp"
+        android:tint="@drawable/dropdown_text"
         android:duplicateParentState="true"
         android:contentDescription="@null" />
 
@@ -23,28 +25,38 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="12dp"
-        android:textColor="@drawable/pill_text"
+        android:layout_marginStart="8.25dp"
+        android:layout_marginEnd="8.25dp"
+        android:textColor="@drawable/dropdown_text"
         android:duplicateParentState="true"
-        android:textSize="15sp"
-        android:fontFamily="@font/outfit_medium"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/outfit_regular"
+        android:includeFontPadding="false"
         android:singleLine="true" />
 
     <View
         android:id="@+id/dot"
-        android:layout_width="7dp"
-        android:layout_height="7dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_marginEnd="6dp"
+        android:visibility="gone"
         android:background="@drawable/status_dot" />
 
     <TextView
         android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@drawable/pill_text_dim"
-        android:duplicateParentState="true"
-        android:textSize="11sp"
-        android:fontFamily="@font/outfit"
-        android:letterSpacing="0.04" />
+        android:layout_marginEnd="4dp"
+        android:textColor="#FF8A8A8A"
+        android:textSize="11.25sp"
+        android:fontFamily="@font/outfit_regular" />
+
+    <ImageView
+        android:id="@+id/check"
+        android:layout_width="16.5dp"
+        android:layout_height="16.5dp"
+        android:visibility="gone"
+        android:tint="#FFF5F5F5"
+        android:src="@drawable/ic_menu_check"
+        android:contentDescription="@null" />
 </LinearLayout>

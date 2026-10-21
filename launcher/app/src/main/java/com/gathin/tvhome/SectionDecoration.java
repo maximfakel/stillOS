@@ -19,8 +19,8 @@ public class SectionDecoration extends RecyclerView.ItemDecoration {
 
     /** Title top to tile top: 40px in the mockup. */
     static final float TITLE_ROOM_DP = 30;
-    /** Dock names' bottom to the "All apps" title: 40px. */
-    static final float SECTION_GAP_DP = 30;
+    /** Dock names' bottom to the "All apps" title: 32px. */
+    static final float SECTION_GAP_DP = 24;
     /** Between grid rows: 24px. */
     static final float ROW_GAP_DP = 18;
 
@@ -72,6 +72,12 @@ public class SectionDecoration extends RecyclerView.ItemDecoration {
             Paint.FontMetrics fm = title.getFontMetrics();
             float lineTop = top - TITLE_ROOM_DP * density;
             float baseline = lineTop + (15f * density - (fm.descent + fm.ascent)) / 2f;
+            // A title scrolling up past the grid's top edge fades out over its own height instead of being cut
+            // through the letters.
+            float lineHeight = 15f * density;
+            int alpha = lineTop >= 0 ? 255 : Math.max(0, Math.round(255 * (1f + lineTop / lineHeight)));
+            if (alpha == 0) continue;
+            title.setAlpha(alpha);
             c.drawText(dock ? favourites : allApps, left, baseline, title);
             if (dock) dockDrawn = true; else gridDrawn = true;
         }

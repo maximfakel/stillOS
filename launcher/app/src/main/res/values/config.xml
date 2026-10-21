@@ -56,6 +56,7 @@
         <item>ru.more.play=banner_okko</item>
         <item>gpm.tnt_premier=banner_premier</item>
         <item>ru.vk.store=banner_rustore</item>
+        <item>com.google.android.youtube.tv=banner_youtube</item>
     </string-array>
 
     <!-- TVs with no TvInputManager have no HDMI list to read, but their own source-selection panel

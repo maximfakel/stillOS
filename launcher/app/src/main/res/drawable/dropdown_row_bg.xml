@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dropdown row: 10% white under focus, 6% for the selected (checked) row, as in the reference. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle"><solid android:color="#1AFFFFFF" /><corners android:radius="8.25dp" /></shape>
+    </item>
+    <item android:state_activated="true">
+        <shape android:shape="rectangle"><solid android:color="#0FFFFFFF" /><corners android:radius="8.25dp" /></shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle"><solid android:color="#00000000" /><corners android:radius="8.25dp" /></shape>
+    </item>
+</selector>

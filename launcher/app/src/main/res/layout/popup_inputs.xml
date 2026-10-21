@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Dropdown (Inputs, the Settings menu, module cards): the Fluid Functionalism dropdown in B3 scale. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/panel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/glass_panel"
-    android:padding="6dp"
-    android:elevation="12dp">
+    android:background="@drawable/dropdown_panel"
+    android:padding="4dp">
 
     <LinearLayout
         android:id="@+id/rows"

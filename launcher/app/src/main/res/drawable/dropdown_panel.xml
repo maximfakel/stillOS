@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dropdown panel (Fluid Functionalism dropdown, scaled to the B3 header): #252525, 12px corners and a
+     faint 2% white edge at the reference's 13px type, here 16.6px for the header's 18px type. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FF252525" />
+    <stroke android:width="0.75dp" android:color="#0FFFFFFF" />
+    <corners android:radius="12.5dp" />
+</shape>

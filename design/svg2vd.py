@@ -28,6 +28,7 @@ LOGOS = {
     "banner_okko": ("okko/okko_logo_white.svg", 140, 50),
     "banner_premier": ("paper/premier.svg", 200, 25),
     "banner_rustore": ("rustore/RuStore_White_Logo.svg", 170, 43),
+    "banner_youtube": ("YouTube_Logo/yt_logo_white_digital.svg", 180, 40),
 }
 
 

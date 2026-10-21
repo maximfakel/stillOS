@@ -10,6 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
@@ -664,7 +665,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (openLauncherSettingsIfAsked(intent)) return;
         if (showAppsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
-        grid.scrollToPosition(0);
+        // Back to the top with Favourites under their title: scrollToPosition(0) only scrolls far enough to show
+        // the row, which with clipToPadding off leaves it 30dp too high, under the grid's top edge.
+        grid.stopScroll();
+        ((GridLayoutManager) grid.getLayoutManager()).scrollToPositionWithOffset(0, 0);
         lastFocused = 0;
         lastFocusedKey = adapter.getItemCount() > 0 ? adapter.keyAt(0) : null;
         if (stopped) {
@@ -1282,6 +1286,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View item = (View) card.getParent();
         if (dockRow && position < COLUMNS) {
             // Favourites: back to where the layout puts the row, under its title.
+            // A smooth scroll still running from the row focus came from (Home pressed down in All apps) would
+            // carry Favourites past their place after this; stop it and park from where the row is now.
+            if (grid.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) grid.stopScroll();
             int dy = item.getTop() - grid.getPaddingTop();
             // A 1px mismatch used to start a scroll on every dock move. Only scroll when the row is
             // actually off; reduced motion does it in one jump so it does not fight the highlight.
@@ -2386,8 +2393,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
 
-        // Compact: as wide as the Inputs pill (a touch wider so "HDMI 1" fits), hanging right below it.
-        int width = Math.max(anchor.getWidth(), (int) (150 * density));
+        // The Fluid Functionalism dropdown: at least as wide as the Inputs item, hanging right below it.
+        int width = Math.max(anchor.getWidth(), (int) (210 * density));
         final PopupWindow popup = glassPopup(panel, width);
 
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
@@ -2459,7 +2466,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 if (hdmi && !label.toUpperCase(Locale.ROOT).contains("HDMI")) label = "HDMI " + label;
                 CharSequence custom = info.loadCustomLabel(this);
                 boolean named = custom != null && custom.length() > 0 && !custom.toString().equals(label);
-                if (!hdmi && rows.getChildCount() > 0 && !sawNonHdmi) addSeparator(rows);
                 if (!hdmi) sawNonHdmi = true;
                 List<TvInputInfo> devices = cecDevices.get(info.getId());
                 if (devices != null) {
@@ -2472,7 +2478,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                         String deviceLabel = name == null || name.length() == 0 ? label : name + " \u00B7 " + label;
                         final String deviceId = device.getId();
                         int state = hdmiStateBogus ? -1 : tim.getInputState(deviceId);
-                        addInputRow(rows, popup, R.drawable.ic_input, deviceLabel, state, () -> openInput(deviceId));
+                        addInputRow(rows, popup, R.drawable.ic_menu_hdmi, deviceLabel, state, deviceId, () -> openInput(deviceId));
                     }
                     continue;
                 }
@@ -2482,13 +2488,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 // Analog AV jacks have no hotplug detection, and some TVs report them as always connected
                 // (TCL Smart TV Pro G03 says "Connected" with nothing plugged in), so AV rows show no state.
                 int state = !hdmi || hdmiStateBogus ? -1 : tim.getInputState(id);
-                addInputRow(rows, popup, hdmi ? R.drawable.ic_input : R.drawable.ic_av, label, state,
+                addInputRow(rows, popup, hdmi ? R.drawable.ic_menu_hdmi : R.drawable.ic_menu_av, label, state, id,
                         () -> openInput(id));
             }
         }
         // Nothing to list where there is no TvInputManager: the TV's own source panel switches inputs.
         if (rows.getChildCount() == 0 && !sourcePanelService.isEmpty()) {
-            addInputRow(rows, popup, R.drawable.ic_input, getString(R.string.inputs), -1, this::openSourcePanel);
+            addInputRow(rows, popup, R.drawable.ic_menu_hdmi, getString(R.string.inputs), -1, "panel", this::openSourcePanel);
         }
         Intent liveTv = liveTvIntent();
         if (liveTv != null && tunerId != null) {
@@ -2504,9 +2510,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (tuned.resolveActivity(getPackageManager()) != null) liveTv = tuned;
         }
         if (liveTv != null) {
-            if (rows.getChildCount() > 0) addSeparator(rows);
             final Intent liveTvIntent = liveTv;
-            addInputRow(rows, popup, R.drawable.ic_livetv, getString(R.string.live_tv), -1, () -> open(liveTvIntent));
+            addInputRow(rows, popup, R.drawable.ic_menu_livetv, getString(R.string.live_tv), -1, "livetv", () -> open(liveTvIntent));
         }
         if (rows.getChildCount() == 0) {
             Toast.makeText(this, R.string.no_inputs, Toast.LENGTH_SHORT).show();
@@ -2519,7 +2524,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         int alignment = getResources().getBoolean(R.bool.rtl_menu_bar) ? Gravity.END : Gravity.START;
         dropIn(popup, panel, anchor, alignment);
-        rows.getChildAt(0).requestFocus();
+        // Focus starts on the checked (last chosen) input, as the reference opens on its selected item.
+        View start = rows.getChildAt(0);
+        for (int i = 0; i < rows.getChildCount(); i++) if (rows.getChildAt(i).isActivated()) start = rows.getChildAt(i);
+        start.requestFocus();
     }
 
     private PopupWindow glassPopup(View panel, int width) {
@@ -2556,7 +2564,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void addInputRow(LinearLayout rows, PopupWindow popup, int iconRes, String title, int state, Runnable action) {
+        addInputRow(rows, popup, iconRes, title, state, null, action);
+    }
+
+    /** An Inputs row; key names it for the check mark: the input last chosen here is the selected row. */
+    private void addInputRow(LinearLayout rows, PopupWindow popup, int iconRes, String title, int state, String key,
+                             Runnable action) {
         View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
+        SharedPreferences inputPrefs = getSharedPreferences("inputs", MODE_PRIVATE);
+        boolean selected = key != null && key.equals(inputPrefs.getString("last", null));
+        row.setActivated(selected);
+        row.findViewById(R.id.check).setVisibility(selected ? View.VISIBLE : View.GONE);
         ((ImageView) row.findViewById(R.id.icon)).setImageResource(iconRes);
         ((TextView) row.findViewById(R.id.title)).setText(title);
         TextView status = row.findViewById(R.id.status);
@@ -2565,7 +2583,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // definite states are shown.
         if (state == TvInputManager.INPUT_STATE_CONNECTED) {
             status.setText(R.string.connected);
-            dot.setVisibility(View.VISIBLE);
+            dot.setVisibility(View.GONE);   // the dropdown keeps to text, as the reference does
         } else if (state == TvInputManager.INPUT_STATE_DISCONNECTED) {
             status.setText(R.string.not_connected);
             dot.setVisibility(View.GONE);
@@ -2574,6 +2592,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             dot.setVisibility(View.GONE);
         }
         row.setOnClickListener(v -> {
+            if (key != null) inputPrefs.edit().putString("last", key).apply();
             popup.dismiss();
             action.run();
         });

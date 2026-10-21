@@ -76,13 +76,13 @@
         android:alpha="0"
         android:importantForAccessibility="no" />
 
-    <!-- The grid starts under the header (272px = 204dp in the mockup); its 30dp top padding holds the
+    <!-- The grid starts under the header (264px = 198dp in the mockup); its 30dp top padding holds the
          "Favourites" title SectionDecoration draws. It clips at its own top, so rows scroll up under the
          header's edge instead of over the clock. -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="204dp">
+        android:layout_marginTop="198dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/grid"
@@ -127,12 +127,14 @@
                 <TextView
                     android:id="@+id/btnHome"
                     style="@style/NavItem"
+                    android:minWidth="96dp"
                     android:text="@string/nav_home"
                     android:drawableStart="@drawable/ic_nav_home" />
 
                 <TextView
                     android:id="@+id/btnApps"
                     style="@style/NavItem"
+                    android:minWidth="128.25dp"
                     android:layout_marginStart="3dp"
                     android:text="@string/nav_apps"
                     android:drawableStart="@drawable/ic_nav_apps" />
@@ -140,6 +142,7 @@
                 <TextView
                     android:id="@+id/btnInputs"
                     style="@style/NavItem"
+                    android:minWidth="115.5dp"
                     android:layout_marginStart="3dp"
                     android:text="@string/inputs"
                     android:drawableStart="@drawable/ic_nav_inputs" />
@@ -147,6 +150,7 @@
                 <TextView
                     android:id="@+id/btnSettings"
                     style="@style/NavItem"
+                    android:minWidth="115.5dp"
                     android:layout_marginStart="3dp"
                     android:text="@string/settings"
                     android:drawableStart="@drawable/ic_nav_settings" />
@@ -278,7 +282,7 @@
                 android:id="@+id/weather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12.5dp"
                 android:layout_marginEnd="-6dp"
                 android:paddingStart="6dp"
                 android:paddingEnd="6dp"
@@ -351,7 +355,7 @@
                     android:id="@+id/weatherHours"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="1.5dp"
                     android:orientation="horizontal" />
             </LinearLayout>
         </LinearLayout>

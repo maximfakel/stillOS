@@ -187,11 +187,16 @@
                 android:orientation="horizontal"
                 android:baselineAligned="true">
 
+                <!-- 64px Outfit in a 64px line. Outfit's ascent and descent are taller than the line: Paper splits
+                     the overflow above and below, Android pins the text to the top, which drew the digits 8px
+                     (6dp) lower than the mockup, close to the date. translationY puts them back without moving
+                     anything around them. -->
                 <TextClock
                     android:id="@+id/clock"
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
                     android:gravity="center_vertical"
+                    android:translationY="-6dp"
                     android:format12Hour="h:mm"
                     android:format24Hour="HH:mm"
                     android:textColor="#FFF5F5F5"
@@ -336,12 +341,14 @@
                         android:tint="#FF6B97FF"
                         android:contentDescription="@null" />
 
+                    <!-- Same 64px line as the clock, lifted the same 6dp to sit where the mockup draws it. -->
                     <TextView
                         android:id="@+id/weatherTemp"
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
                         android:layout_marginStart="12dp"
                         android:gravity="center_vertical"
+                        android:translationY="-6dp"
                         android:singleLine="true"
                         android:textColor="#FFF5F5F5"
                         android:textSize="48sp"

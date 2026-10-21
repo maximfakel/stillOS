@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An hour with rain or snow: the accent blue at 14%. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#246B97FF" />
+    <corners android:radius="7.5dp" />
+</shape>

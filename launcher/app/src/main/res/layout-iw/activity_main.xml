@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Hebrew-only header positioning. Other languages use layout/activity_main.xml. -->
+<!-- Hebrew: the B3 layout as is, not yet mirrored (the grid still mirrors through values-iw/bools.xml).
+     B3 home (design/: Paper mockup "B3"), drawn on a 1280x720 TV as 960x540dp: every size here is the
+     mockup's px times 0.75. A header with the navigation and the clock on the left, the network status
+     and the weather on the right; under it the app grid with "Favourites" and "All apps" rows
+     (SectionDecoration). Focus is one flat #333 plate (GlassView) that slides under the focused item. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF000000">
+    android:background="#FF171717">
 
-    <!-- Time-of-day backdrop, drawn once a minute (config.xml sky_intensity; 0 keeps it hidden).
-         Keep in step with layout/activity_main.xml: every view there must exist here too. -->
+    <!-- Time-of-day backdrop, drawn once a minute (config.xml sky_intensity; 0 keeps it hidden). -->
     <com.gathin.tvhome.SkyView
         android:id="@+id/sky"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:importantForAccessibility="no" />
 
-    <!-- Cinematic top shelf (cinematic_home): the focused dock app's artwork, a few pixels across and
-         stretched over the screen, which softens it like a blur without the cost of one. Hidden otherwise. -->
+    <!-- Kept for the cinematic shelf and the glow, which B3 leaves off (dock_title, ambient_glow false). -->
     <ImageView
         android:id="@+id/heroArt"
         android:layout_width="match_parent"
@@ -25,77 +27,12 @@
         android:visibility="gone"
         android:importantForAccessibility="no" />
 
-    <!-- Ambient glow in the colour of the focused dock app. -->
     <View
         android:id="@+id/ambient"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0" />
 
-    <!-- Race-weekend panel (a theme's race_calendar, see RaceWeekend), mirrored: under the clock on the right. -->
-    <LinearLayout
-        android:id="@+id/racePanel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|right"
-        android:layout_marginEnd="60dp"
-        android:layout_marginTop="158dp"
-        android:gravity="right"
-        android:orientation="vertical"
-        android:focusable="false"
-        android:importantForAccessibility="no"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/raceKicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:textColor="#B3FFFFFF"
-                android:textSize="12sp"
-                android:fontFamily="@font/outfit_medium"
-                android:letterSpacing="0.22"
-                android:textAllCaps="true" />
-
-            <View
-                android:layout_width="3dp"
-                android:layout_height="13dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/race_bar" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/raceHeadline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:singleLine="true"
-            android:textColor="#FFFFFFFF"
-            android:textSize="34sp"
-            android:fontFamily="@font/outfit_light"
-            android:letterSpacing="-0.01"
-            android:includeFontPadding="false" />
-
-        <TextView
-            android:id="@+id/raceSessions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:singleLine="true"
-            android:textColor="#99FFFFFF"
-            android:textSize="12sp"
-            android:fontFamily="@font/outfit_medium"
-            android:letterSpacing="0.12" />
-    </LinearLayout>
-
-    <!-- Cinematic top shelf: darkens the edge behind the shelf and the lower half, so the text and the
-         dock stay readable over the artwork. -->
     <View
         android:id="@+id/heroScrim"
         android:layout_width="match_parent"
@@ -103,279 +40,365 @@
         android:visibility="gone"
         android:importantForAccessibility="no" />
 
-    <!-- Top shelf: the focused dock app's name, positioned above the dock in code. -->
     <LinearLayout
         android:id="@+id/hero"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="68dp"
-        android:layout_gravity="right"
-        android:gravity="right"
         android:orientation="vertical"
+        android:visibility="gone"
         android:alpha="0">
 
         <TextView
             android:id="@+id/heroName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:gravity="right"
-            android:textColor="#FFFFFFFF"
-            android:textSize="48sp"
-            android:fontFamily="@font/outfit_light"
-            android:letterSpacing="-0.02"
-            android:includeFontPadding="false"
             android:singleLine="true" />
 
-        <!-- Cinematic shelf only: when the app was last opened, and the dock position dots. -->
         <TextView
             android:id="@+id/heroMeta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginEnd="4dp"
-            android:layout_marginTop="12dp"
-            android:singleLine="true"
-            android:textColor="#B3FFFFFF"
-            android:textSize="15sp"
-            android:fontFamily="@font/outfit_light"
             android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/heroDots"
             android:layout_width="wrap_content"
             android:layout_height="6dp"
-            android:layout_gravity="right"
-            android:layout_marginEnd="4dp"
-            android:layout_marginTop="16dp"
             android:orientation="horizontal"
             android:visibility="gone" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingStart="56dp"
-        android:paddingEnd="56dp"
-        android:paddingTop="26dp"
-        android:clipChildren="false"
-        android:clipToPadding="false">
-
-        <!-- No clipping down to the pills: with advanced effects a focused pill scales up past its row. -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false">
-
-            <LinearLayout
-                android:id="@+id/leftBlock"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_toEndOf="@+id/topButtons"
-                android:layout_marginStart="16dp"
-                android:orientation="horizontal"
-                android:gravity="right|bottom">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="9dp"
-                    android:orientation="vertical">
-
-                    <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
-                    <TextView
-                        android:id="@+id/shamsiDate"
-                        android:gravity="right"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:textColor="#E6FFFFFF"
-                        android:textSize="17sp"
-                        android:fontFamily="@font/outfit_regular"
-                        android:letterSpacing="0.02"
-                        android:includeFontPadding="false"
-                        android:visibility="gone" />
-
-                    <TextClock
-                        android:id="@+id/date"
-                        android:gravity="right"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:format12Hour="@string/date_format"
-                        android:format24Hour="@string/date_format"
-                        android:textColor="#A6FFFFFF"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/outfit_regular"
-                        android:letterSpacing="0.14"
-                        android:textAllCaps="true" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="26dp"
-                    android:layout_gravity="bottom"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="#33FFFFFF" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/greeting"
-                        android:gravity="center_horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:textColor="#8CFFFFFF"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/outfit_medium"
-                        android:letterSpacing="0.22"
-                        android:textAllCaps="true" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:baselineAligned="true">
-                        <TextClock
-                            android:id="@+id/clock"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:format12Hour="h:mm"
-                            android:format24Hour="HH:mm"
-                            android:textColor="#FFFFFFFF"
-                            android:textSize="52sp"
-                            android:fontFamily="@font/outfit_light"
-                            android:letterSpacing="-0.04"
-                            android:includeFontPadding="false" />
-
-                        <TextClock
-                            android:id="@+id/ampm"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:layout_gravity="bottom"
-                            android:layout_marginBottom="8dp"
-                            android:format12Hour="a"
-                            android:format24Hour=""
-                            android:textColor="#B3FFFFFF"
-                            android:textSize="15sp"
-                            android:fontFamily="@font/outfit_medium"
-                            android:letterSpacing="0.08"
-                            android:textAllCaps="true" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Shown only when show_stats is on. Outside leftBlock, so the top buttons stay level with the clock
-                 row; gone, it takes no space. -->
-            <TextView
-                android:id="@+id/stats"
-                android:layout_width="wrap_content"
-                android:layout_below="@id/leftBlock"
-                android:layout_alignStart="@id/leftBlock"
-                android:gravity="right"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:textColor="#D9FFFFFF"
-                android:textSize="14sp"
-                android:fontFamily="@font/outfit_medium"
-                android:letterSpacing="0.04"
-                android:focusable="false"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/topButtons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignBottom="@id/leftBlock"
-                android:layout_marginBottom="6dp"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/btnSettings"
-                    style="@style/TopButton"
-                    android:text="@string/settings"
-                    android:drawableStart="@drawable/ic_settings"
-                    android:nextFocusDown="@+id/grid" />
-
-                <TextView
-                    android:id="@+id/btnLibraryTop"
-                    style="@style/TopButtonIcon"
-                    android:visibility="gone"
-                    android:contentDescription="@string/app_library"
-                    android:drawableStart="@drawable/ic_apps"
-                    android:nextFocusDown="@+id/grid" />
-
-                <TextView
-                    android:id="@+id/btnReorder"
-                    style="@style/TopButtonIcon"
-                    android:contentDescription="@string/reorder"
-                    android:drawableStart="@drawable/ic_swap_vert"
-                    android:nextFocusDown="@+id/grid" />
-
-                <TextView
-                    android:id="@+id/btnWifi"
-                    style="@style/TopButton"
-                    android:maxWidth="180dp"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:text="@string/wifi"
-                    android:drawableStart="@drawable/ic_wifi"
-                    android:nextFocusDown="@+id/grid" />
-
-                <TextView
-                    android:id="@+id/btnInputs"
-                    style="@style/TopButton"
-                    android:text="@string/inputs"
-                    android:drawableStart="@drawable/ic_input"
-                    android:nextFocusDown="@+id/grid" />
-            </LinearLayout>
-        </RelativeLayout>
-
-        <!-- The wrapper clips at the grid's edge; the grid itself must not clip so scaled tiles can overflow their cells. -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="10dp">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/grid"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="10dp"
-                android:paddingBottom="40dp"
-                android:clipToPadding="false"
-                android:clipChildren="false"
-                android:overScrollMode="never"
-                android:scrollbars="none"
-                android:descendantFocusability="afterDescendants" />
-        </FrameLayout>
-    </LinearLayout>
-
-    <!-- The single floating glass highlight that springs between tiles. -->
+    <!-- The focus plate: one flat #333 rounded rect that springs from item to item. It sits under the grid,
+         so the focused tile's 5% white lies on it and reads lighter, as in the mockup. -->
     <com.gathin.tvhome.GlassView
         android:id="@+id/glass"
         android:layout_width="10dp"
         android:layout_height="10dp"
         android:alpha="0"
         android:importantForAccessibility="no" />
+
+    <!-- The grid starts under the header (272px = 204dp in the mockup); its 30dp top padding holds the
+         "Favourites" title SectionDecoration draws. It clips at its own top, so rows scroll up under the
+         header's edge instead of over the clock. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="204dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="45dp"
+            android:paddingEnd="45dp"
+            android:paddingTop="30dp"
+            android:paddingBottom="24dp"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            android:overScrollMode="never"
+            android:scrollbars="none"
+            android:descendantFocusability="afterDescendants" />
+    </FrameLayout>
+
+    <!-- Header: 56px down and 72px in from the sides in the mockup. -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="54dp"
+        android:layout_marginEnd="54dp"
+        android:layout_marginTop="42dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:id="@+id/leftBlock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/topButtons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <TextView
+                    android:id="@+id/btnHome"
+                    style="@style/NavItem"
+                    android:text="@string/nav_home"
+                    android:drawableStart="@drawable/ic_nav_home" />
+
+                <TextView
+                    android:id="@+id/btnApps"
+                    style="@style/NavItem"
+                    android:layout_marginStart="3dp"
+                    android:text="@string/nav_apps"
+                    android:drawableStart="@drawable/ic_nav_apps" />
+
+                <TextView
+                    android:id="@+id/btnInputs"
+                    style="@style/NavItem"
+                    android:layout_marginStart="3dp"
+                    android:text="@string/inputs"
+                    android:drawableStart="@drawable/ic_nav_inputs" />
+
+                <TextView
+                    android:id="@+id/btnSettings"
+                    style="@style/NavItem"
+                    android:layout_marginStart="3dp"
+                    android:text="@string/settings"
+                    android:drawableStart="@drawable/ic_nav_settings" />
+
+                <!-- Optional extras of the original top bar, off in B3 (reorder_button, library_button). -->
+                <TextView
+                    android:id="@+id/btnReorder"
+                    style="@style/NavItem"
+                    android:layout_marginStart="3dp"
+                    android:visibility="gone"
+                    android:contentDescription="@string/reorder"
+                    android:drawableStart="@drawable/ic_swap_vert" />
+
+                <TextView
+                    android:id="@+id/btnLibraryTop"
+                    style="@style/NavItem"
+                    android:layout_marginStart="3dp"
+                    android:visibility="gone"
+                    android:contentDescription="@string/app_library"
+                    android:drawableStart="@drawable/ic_apps" />
+            </LinearLayout>
+
+            <!-- Kept for the code that sets it; B3 shows no greeting. -->
+            <TextView
+                android:id="@+id/greeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:orientation="horizontal"
+                android:baselineAligned="true">
+
+                <TextClock
+                    android:id="@+id/clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:textColor="#FFF5F5F5"
+                    android:textSize="48sp"
+                    android:fontFamily="@font/outfit_extralight"
+                    android:letterSpacing="-0.04"
+                    android:includeFontPadding="false" />
+
+                <TextClock
+                    android:id="@+id/ampm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="6dp"
+                    android:format12Hour="a"
+                    android:format24Hour=""
+                    android:textColor="#FFA3A3A3"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/outfit_medium"
+                    android:textAllCaps="true" />
+            </LinearLayout>
+
+            <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
+            <TextView
+                android:id="@+id/shamsiDate"
+                android:gravity="left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="3dp"
+                android:singleLine="true"
+                android:textColor="#FFA3A3A3"
+                android:textSize="14.25sp"
+                android:fontFamily="@font/outfit_regular"
+                android:visibility="gone" />
+
+            <!-- "Четверг, 22 октября": set by MainActivity with the clock tick, first letter capitalised,
+                 which TextClock cannot do. -->
+            <TextView
+                android:id="@+id/date"
+                android:gravity="left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1.5dp"
+                android:paddingStart="3dp"
+                android:singleLine="true"
+                android:textColor="#FFA3A3A3"
+                android:textSize="14.25sp"
+                android:fontFamily="@font/outfit_regular"
+                android:includeFontPadding="false" />
+
+            <!-- Shown only when show_stats is on. -->
+            <TextView
+                android:id="@+id/stats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="3dp"
+                android:singleLine="true"
+                android:textColor="#FFA3A3A3"
+                android:textSize="11sp"
+                android:fontFamily="@font/outfit_medium"
+                android:focusable="false"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <!-- Network: the Wi-Fi (or Ethernet) icon, the network name and a status dot, green when the
+                 internet answers, amber when the network has no internet, red with "Offline". -->
+            <TextView
+                android:id="@+id/btnWifi"
+                style="@style/NavItem"
+                android:maxWidth="220dp"
+                android:ellipsize="end"
+                android:textSize="11.25sp"
+                android:text="@string/wifi"
+                android:drawableStart="@drawable/ic_net_wifi"
+                android:drawableEnd="@drawable/net_dot" />
+
+            <!-- Weather (Weather.java). Focusable: OK picks the city. -->
+            <LinearLayout
+                android:id="@+id/weather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:layout_marginEnd="-6dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:orientation="vertical"
+                android:gravity="end"
+                android:background="@drawable/nav_item_bg"
+                android:focusable="true"
+                android:clickable="true">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="end">
+
+                        <TextView
+                            android:id="@+id/weatherCondition"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:textColor="#FFF5F5F5"
+                            android:textSize="14.25sp"
+                            android:fontFamily="@font/outfit_medium"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/weatherCity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:singleLine="true"
+                            android:textColor="#FFA3A3A3"
+                            android:textSize="11.25sp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:includeFontPadding="false" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/weatherIcon"
+                        android:layout_width="33dp"
+                        android:layout_height="33dp"
+                        android:layout_marginStart="12dp"
+                        android:tint="#FF6B97FF"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:id="@+id/weatherTemp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="12dp"
+                        android:gravity="center_vertical"
+                        android:singleLine="true"
+                        android:textColor="#FFF5F5F5"
+                        android:textSize="48sp"
+                        android:fontFamily="@font/outfit_extralight"
+                        android:letterSpacing="-0.04"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
+
+                <!-- The next hours, filled in by Weather. -->
+                <LinearLayout
+                    android:id="@+id/weatherHours"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- Race-weekend panel (a theme's race_calendar), under the clock; off unless a theme brings a calendar. -->
+    <LinearLayout
+        android:id="@+id/racePanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_marginStart="390dp"
+        android:layout_marginTop="100dp"
+        android:orientation="vertical"
+        android:focusable="false"
+        android:importantForAccessibility="no"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/raceKicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textColor="#FFA3A3A3"
+            android:textSize="11sp"
+            android:fontFamily="@font/outfit_medium"
+            android:textAllCaps="true" />
+
+        <TextView
+            android:id="@+id/raceHeadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:singleLine="true"
+            android:textColor="#FFF5F5F5"
+            android:textSize="20sp"
+            android:fontFamily="@font/outfit_light" />
+
+        <TextView
+            android:id="@+id/raceSessions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:singleLine="true"
+            android:textColor="#FFA3A3A3"
+            android:textSize="11sp"
+            android:fontFamily="@font/outfit_medium" />
+    </LinearLayout>
 </FrameLayout>

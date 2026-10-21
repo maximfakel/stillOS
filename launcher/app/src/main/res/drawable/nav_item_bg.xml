@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Header items: focused #333 (the focus plate), the current section (activated) a faint 5% white, else nothing. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle"><solid android:color="#FF333333" /><corners android:radius="9dp" /></shape>
+    </item>
+    <item android:state_activated="true">
+        <shape android:shape="rectangle"><solid android:color="#0DF5F5F5" /><corners android:radius="9dp" /></shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle"><solid android:color="#00000000" /><corners android:radius="9dp" /></shape>
+    </item>
+</selector>

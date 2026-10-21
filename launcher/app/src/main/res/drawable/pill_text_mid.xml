@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Secondary lines of a focused list row (package, signing key): dark enough to read on the white
-     focused background at 10sp; unfocused the same as pill_text_dim. -->
+<!-- Secondary lines of a list row (package, signing key), B3: grey on the dark panel and the #333 row. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_focused="true" android:color="#E6111111" />
-    <item android:color="#73FFFFFF" />
+    <item android:state_focused="true" android:color="#FFB5B5B5" />
+    <item android:color="#FF8A8A8A" />
 </selector>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One B3 tile: a neutral card with the app's white logo (app_banners) or, without one, its name, and the
+     name under the card. AppAdapter sizes the card and places the name; SectionDecoration spaces the rows. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
     android:clipChildren="false"
     android:clipToPadding="false">
 
     <FrameLayout
         android:id="@+id/card"
-        android:layout_width="180dp"
-        android:layout_height="101dp"
+        android:layout_width="200dp"
+        android:layout_height="112.5dp"
         android:layout_gravity="center_horizontal|top"
         android:background="@drawable/tile_bg"
         android:focusable="true"
@@ -20,7 +20,7 @@
             android:id="@+id/banner"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             android:contentDescription="@null" />
 
         <ImageView
@@ -28,40 +28,38 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center"
-            android:layout_marginBottom="14dp"
             android:visibility="gone"
             android:contentDescription="@null" />
 
+        <!-- An app with no bundled logo: its name in the tile, in the interface's type. -->
         <TextView
             android:id="@+id/label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="8dp"
+            android:layout_gravity="center"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
             android:gravity="center"
-            android:singleLine="true"
+            android:maxLines="2"
             android:ellipsize="end"
-            android:textColor="#FFFFFFFF"
-            android:textSize="13sp"
-            android:fontFamily="@font/outfit"
+            android:textColor="#FFF5F5F5"
+            android:textSize="18sp"
+            android:fontFamily="@font/outfit_medium"
             android:visibility="gone" />
     </FrameLayout>
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="180dp"
-        android:layout_height="22dp"
+        android:layout_width="200dp"
+        android:layout_height="18dp"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="108dp"
-        android:gravity="center"
+        android:layout_marginTop="120dp"
+        android:paddingStart="4.5dp"
+        android:gravity="left|center_vertical"
         android:singleLine="true"
         android:ellipsize="end"
-        android:alpha="0"
-        android:translationY="-6dp"
-        android:textColor="#F2FFFFFF"
-        android:textSize="14sp"
-        android:fontFamily="@font/outfit_medium"
-        android:letterSpacing="0.02" />
+        android:includeFontPadding="false"
+        android:textColor="#FFA3A3A3"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/outfit_regular" />
 </FrameLayout>

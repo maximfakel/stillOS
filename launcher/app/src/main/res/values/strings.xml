@@ -107,4 +107,45 @@
     <!-- Cinematic top shelf (cinematic_home): the line under the focused dock app's name; %1$s is when it was
          last opened, e.g. "5 minutes ago" or "yesterday, 9:40 pm". -->
     <string name="last_opened">Last opened %1$s</string>
+    <!-- B3 home: header navigation, section titles over the rows, weather and network status. -->
+    <string name="nav_home">Home</string>
+    <string name="nav_apps">Apps</string>
+    <string name="section_favourites">Favourites</string>
+    <string name="section_all_apps">All apps</string>
+    <string name="no_internet">No internet</string>
+    <!-- City line under the condition: %1$s city, %2$s day high, %3$s day low, e.g. "Rostov-on-Don · ↑ +14° ↓ +6°". -->
+    <string name="weather_city_line">%1$s · ↑ %2$s ↓ %3$s</string>
+    <string name="weather_loading">Loading weather…</string>
+    <string name="weather_unavailable">No weather data</string>
+    <string name="weather_city_title">City for the weather</string>
+    <string name="weather_city_other">Another city…</string>
+    <string name="weather_search_hint">City name</string>
+    <string name="weather_search">Search</string>
+    <string name="weather_searching">Searching…</string>
+    <string name="weather_search_none">Nothing found</string>
+    <string name="weather_search_failed">Could not search: no connection</string>
+    <string name="wmo_clear">Clear</string>
+    <string name="wmo_mainly_clear">Mostly clear</string>
+    <string name="wmo_partly">Partly cloudy</string>
+    <string name="wmo_overcast">Overcast</string>
+    <string name="wmo_fog">Fog</string>
+    <string name="wmo_drizzle">Drizzle</string>
+    <string name="wmo_freezing_drizzle">Freezing drizzle</string>
+    <string name="wmo_rain_light">Light rain</string>
+    <string name="wmo_rain">Rain</string>
+    <string name="wmo_rain_heavy">Heavy rain</string>
+    <string name="wmo_freezing_rain">Freezing rain</string>
+    <string name="wmo_snow_light">Light snow</string>
+    <string name="wmo_snow">Snow</string>
+    <string name="wmo_snow_heavy">Heavy snow</string>
+    <string name="wmo_snow_grains">Snow grains</string>
+    <string name="wmo_showers">Showers</string>
+    <string name="wmo_snow_showers">Snow showers</string>
+    <string name="wmo_thunder">Thunderstorm</string>
+    <string name="wmo_thunder_hail">Thunderstorm with hail</string>
+    <!-- B3 date under the clock (SimpleDateFormat), capitalised in code: "Thursday, 22 October". -->
+    <string name="date_format_b3" translatable="false">EEEE, d MMMM</string>
+    <string name="wmo_sleet">Sleet</string>
+    <string name="weather_credit">Weather: MET Norway (yr.no), CC BY 4.0</string>
+    <string name="weather_search_credit">Search: © OpenStreetMap contributors</string>
 </resources>

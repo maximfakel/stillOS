@@ -26,6 +26,25 @@
     </style>
     <style name="TopButton" parent="TopButtonBase" />
 
+    <!-- B3 header item: icon and label, focused on the #333 plate, the current section on a faint 5% white. -->
+    <style name="NavItem">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:paddingStart">10.5dp</item>
+        <item name="android:paddingEnd">10.5dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:background">@drawable/nav_item_bg</item>
+        <item name="android:textColor">@drawable/nav_item_text</item>
+        <item name="android:drawableTint">@drawable/nav_item_text</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:fontFamily">@font/outfit_regular</item>
+        <item name="android:drawablePadding">6dp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
     <!-- Icon-only pill: a 42dp circle (pill_bg's 21dp corners) with the 22dp icon centred by even padding. Give it a
          contentDescription, since there is no text. -->
     <style name="TopButtonIcon" parent="TopButtonBase">

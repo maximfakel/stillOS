@@ -10,6 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -241,6 +242,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             handler.post(MainActivity.this::updateWifiLabel);
         }
 
+        /** Internet found (or lost) on the same network: the status dot turns green or amber, the weather retries. */
+        @Override
+        public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities caps) {
+            handler.post(() -> {
+                updateWifiLabel();
+                if (weather != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                    weather.onNetworkAvailable();
+                }
+            });
+        }
+
         @Override
         public void onLost(@NonNull Network network) {
             handler.post(MainActivity.this::updateWifiLabel);
@@ -434,7 +446,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             public void onChildViewDetachedFromWindow(@NonNull View v) {
             }
         });
-        if (dockRow) grid.addItemDecoration(new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames));
+        // B3: "Favourites" over the dock row, "All apps" over the grid, and the gaps between rows.
+        grid.addItemDecoration(new SectionDecoration(this, COLUMNS, density));
         if (animations) {
             int enterAnim = reducedMotion ? R.anim.tile_enter_reduced : R.anim.tile_enter;
             float enterDelay = reducedMotion ? 0f : 0.06f;
@@ -447,26 +460,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         adapter.setSavedOrder(Order.ranks(Order.load(Order.file(this)), dockApps));
         grid.setAdapter(adapter);
 
-        // tvOS layout: push the dock row towards the bottom of the screen, leaving room for
-        // rows_below_dock grid rows under it; the rest of the grid stays below until you press Down.
-        int rowsBelowDock = cfg.rowsBelowDock;
+        // B3 layout: the grid starts under the header and its top padding holds the "Favourites" title.
         grid.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
-            int h = b - t;
-            // Item height follows the tile size, which follows the columns and the rows that must fit (AppAdapter.tileWidthPx).
-            int inner = (r - l) - grid.getPaddingLeft() - grid.getPaddingRight();
-            int tileW = AppAdapter.tileWidthPx(inner, h, COLUMNS, rowsBelowDock, cfg.dockTitle, cfg.dockRow, density);
-            int itemH = AppAdapter.itemHeightPx(AppAdapter.tileHeightPx(tileW), density);
-            int dockRow = itemH + (int) (AppAdapter.DOCK_EXTRA_DP * density);   // item height plus DockDecoration offsets
-            int gridRows = itemH * rowsBelowDock;
-            // Keep the hero below the header when the library is enabled on a short screen,
-            // even when the theme requests an extra visible row below the dock.
-            int shelfClearance = cfg.appLibrary ? hero.getMeasuredHeight() + (int) (40 * density) : 0;
-            int want = Math.max(shelfClearance, h - dockRow - gridRows - (int) (AppAdapter.BOTTOM_ROOM_DP * density));
-            // Where the rows cannot fit even at the smallest tile (3 rows with the title on), the title keeps its
-            // room above the dock and the last rows run off the bottom instead of the title drawing over the clock.
-            if (MainActivity.this.dockRow && cfg.dockTitle && rowsBelowDock > 0) want = Math.max(want, (int) (AppAdapter.TITLE_ROOM_DP * density));
-            // No dock to push down: the grid starts at the top, with room for the first row's zoom and glass.
-            if (!MainActivity.this.dockRow) want = (int) (AppAdapter.TOP_ROOM_DP * density);
+            int want = Math.round(SectionDecoration.TITLE_ROOM_DP * density);
             if (grid.getPaddingTop() != want) {
                 grid.setPadding(grid.getPaddingLeft(), want, grid.getPaddingRight(), grid.getPaddingBottom());
             }
@@ -520,6 +516,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return true;
         });
         btnSettings.setOnClickListener(v -> open(systemIntent(Settings.ACTION_SETTINGS)));
+        // B3 navigation: Home is the current section (a faint plate), Apps goes to the All apps row.
+        btnHome = findViewById(R.id.btnHome);
+        btnHome.setActivated(true);
+        btnHome.setOnClickListener(v -> focusTile(0));
+        btnApps = findViewById(R.id.btnApps);
+        btnApps.setOnClickListener(v -> focusTile(Math.min(COLUMNS, Math.max(0, adapter.appCount() - 1))));
+        weatherBlock = findViewById(R.id.weather);
+        weather = new Weather(this, weatherBlock);
         btnReorder = findViewById(R.id.btnReorder);
         btnReorder.setOnClickListener(v -> toggleReorder());
         btnReorder.setVisibility(cfg.reorderButton ? View.VISIBLE : View.GONE);
@@ -542,28 +546,53 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return true;
         });
 
-        // Keep focus on the top bar at its ends and at the top: Android's focus finder would otherwise
-        // jump to a tile far below when there is nothing in that direction.
-        boolean rtlMenuBar = getResources().getBoolean(R.bool.rtl_menu_bar);
+        // Header keys. Up never leaves the header and the row ends stop focus, so Android's focus finder
+        // cannot jump to a tile far below. The nav row runs into the network status on the right; the weather
+        // sits under the network status. Down goes back to the dock tile Up came from.
         View.OnKeyListener pillKeys = (v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                // Back to the dock tile Up came from, not wherever the focus finder lands.
-                focusTile(lastFocused % COLUMNS);
-                return true;
+            int id = v.getId();
+            boolean right = id == R.id.btnWifi || id == R.id.weather;
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    if (id == R.id.weather && btnWifi.getVisibility() == View.VISIBLE) btnWifi.requestFocus();
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if (id == R.id.btnWifi && weatherBlock.getVisibility() == View.VISIBLE) {
+                        weatherBlock.requestFocus();
+                        return true;
+                    }
+                    focusTile(lastFocused % COLUMNS);
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    if (right) {
+                        lastNavItem().requestFocus();
+                        return true;
+                    }
+                    return v == firstNavItem();
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    if (right) return true;
+                    if (v == lastNavItem()) {
+                        (btnWifi.getVisibility() == View.VISIBLE ? btnWifi : weatherBlock).requestFocus();
+                        return true;
+                    }
+                    return false;
+                default:
+                    return false;
             }
-            int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : firstTopButton().getId();
-            int leftButton = rtlMenuBar ? R.id.btnSettings : firstButton;
-            int rightButton = rtlMenuBar ? firstButton : R.id.btnSettings;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
-            return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
         };
-        btnInputs.setOnKeyListener(pillKeys);
-        btnWifi.setOnKeyListener(pillKeys);
-        btnSettings.setOnKeyListener(pillKeys);
-        btnReorder.setOnKeyListener(pillKeys);
-        btnLibraryTop.setOnKeyListener(pillKeys);
+        for (View item : new View[]{btnHome, btnApps, btnInputs, btnSettings, btnReorder, btnLibraryTop, btnWifi, weatherBlock}) {
+            item.setOnKeyListener(pillKeys);
+            if (item instanceof TextView) {
+                TextView label = (TextView) item;
+                styleNavItem(label, false);
+                View.OnFocusChangeListener previous = label.getOnFocusChangeListener();
+                label.setOnFocusChangeListener((view, focused) -> {
+                    if (previous != null) previous.onFocusChange(view, focused);
+                    styleNavItem(label, focused);
+                });
+            }
+        }
         if (advancedEffects) {
             for (View button : new View[]{btnInputs, btnWifi, btnReorder, btnLibraryTop, btnSettings}) {
                 button.setOnFocusChangeListener((view, focused) -> view.animate()
@@ -692,6 +721,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             pillsShown = true;
         }
         if (showStats) startStats();
+        weather.start();
         sky.update();
         wallpaperPlayer.start();
         handler.postDelayed(minuteTick, MINUTE_MS);
@@ -817,6 +847,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroArt.animate().cancel();
         handler.removeCallbacks(minuteTick);
         stopStats();
+        weather.stop();
         if (diya != null) diya.stop();
         cancelPendingFocusScroll();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
@@ -873,6 +904,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onDestroy() {
         super.onDestroy();
         wallpaperPlayer.close();
+        weather.destroy();
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (tim != null) tim.unregisterCallback(inputCallback);
@@ -1208,20 +1240,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         Rect r = tileRect;
         r.set(0, 0, card.getWidth(), card.getHeight());
         root.offsetDescendantRectToMyCoords(card, r);
-        float pad = 6f * density;        // matches GlassView's glow inset
-        float scale = adapter.focusScale();
-        float w = card.getWidth() * scale + 2 * pad;
-        float h = card.getHeight() * scale + 2 * pad;
-        float x = r.exactCenterX() - w / 2f;
-        float y = r.exactCenterY() - h / 2f - (advancedEffects ? 4f * density : 0f);
+        // B3 plate: 8px past the tile at the sides and the top, and down over the name (42px under the tile).
+        float pad = PLATE_SIDE_DP * density;
+        float w = plateWidth(card);
+        float h = plateHeight(card);
+        float x = r.left - pad;
+        float y = r.top - pad;
 
         ViewGroup.LayoutParams lp = glass.getLayoutParams();
         if (lp.width != (int) w || lp.height != (int) h || card.getWidth() != glassCardW) {
             lp.width = (int) w;
             lp.height = (int) h;
             glass.setLayoutParams(lp);
-            // GlassView draws its slab inset by pad, i.e. exactly over the zoomed tile: same corners as the tile.
-            glass.setRadius(AppAdapter.cornerRadius(card.getWidth(), density) * scale);
         }
         glassCardW = card.getWidth();
         glassTargetX = x;
@@ -1251,9 +1281,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         View item = (View) card.getParent();
         if (dockRow && position < COLUMNS) {
-            // Dock: park it at the bottom of the screen and show the top shelf for this app.
-            int decoratedTop = item.getTop() - (int) (6 * density);
-            int dy = decoratedTop - grid.getPaddingTop();
+            // Favourites: back to where the layout puts the row, under its title.
+            int dy = item.getTop() - grid.getPaddingTop();
             // A 1px mismatch used to start a scroll on every dock move. Only scroll when the row is
             // actually off; reduced motion does it in one jump so it does not fight the highlight.
             boolean scroll = Math.abs(dy) > (int) (8 * density);
@@ -1261,13 +1290,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 if (!animations || reducedMotion) grid.scrollBy(0, dy);
                 else grid.smoothScrollBy(0, dy);
             }
-            showHero(position, scroll ? r.top - dy : r.top);
+            if (heroEnabled()) showHero(position, scroll ? r.top - dy : r.top);
         } else {
-            // Below the dock (or in a plain grid) the glow follows the tile without the big name; letting it
-            // fade out left the grid on plain black.
-            showGlowOnly(position);
-            // Scroll just enough so the whole glass (not only the tile) is visible.
-            revealRect.set(0, -(int) pad * 2, item.getWidth(), item.getHeight() + (int) pad);
+            if (heroEnabled()) showGlowOnly(position);
+            // Scroll just enough so the whole plate (tile and name) is visible.
+            revealRect.set(0, -(int) pad, item.getWidth(), (int) (plateHeight(card) - pad) + (int) pad);
             grid.requestChildRectangleOnScreen(item, revealRect, reducedMotion);
         }
     }
@@ -1279,13 +1306,27 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         RecyclerView.ViewHolder vh = grid.findViewHolderForAdapterPosition(pos);
         View card = vh == null ? null : vh.itemView.findViewById(R.id.card);
         if (card == null || card.getWidth() <= 0 || !card.isFocused()) return;
-        float pad = 6f * density;
-        float scale = adapter.focusScale();
-        int w = (int) (card.getWidth() * scale + 2 * pad);
-        int h = (int) (card.getHeight() * scale + 2 * pad);
+        int w = (int) plateWidth(card);
+        int h = (int) plateHeight(card);
         if (!glassShown || card.getWidth() != glassCardW || glass.getWidth() != w || glass.getHeight() != h) {
             onTileFocused(pos, card);
         }
+    }
+
+    /** The plate's reach past the tile at the sides and top (8px), and under it over the name (42px). */
+    static final float PLATE_SIDE_DP = 6f, PLATE_BELOW_DP = 31.5f;
+
+    private float plateWidth(View card) {
+        return card.getWidth() + 2 * PLATE_SIDE_DP * density;
+    }
+
+    private float plateHeight(View card) {
+        return card.getHeight() + (PLATE_SIDE_DP + PLATE_BELOW_DP) * density;
+    }
+
+    /** The old top shelf and glow: off in B3 unless a theme turns dock_title or ambient_glow back on. */
+    private boolean heroEnabled() {
+        return hero.getVisibility() == View.VISIBLE || ambientGlow || cinematic;
     }
 
     // ---- top shelf -------------------------------------------------------------------------------
@@ -1822,9 +1863,27 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** The first top-bar button after Inputs that is shown: the network pill, Reorder, then Settings (always there). */
     private View firstTopButton() {
-        if (btnWifi.getVisibility() == View.VISIBLE) return btnWifi;
+        return btnHome;
+    }
+
+    private TextView btnHome, btnApps;
+    private View weatherBlock;
+    private Weather weather;
+
+    /** The first and last shown items of the B3 nav row (Home always shows; Reorder and Library are optional). */
+    private View firstNavItem() {
+        return btnHome;
+    }
+
+    private View lastNavItem() {
+        if (btnLibraryTop.getVisibility() == View.VISIBLE) return btnLibraryTop;
         if (btnReorder.getVisibility() == View.VISIBLE) return btnReorder;
         return findViewById(R.id.btnSettings);
+    }
+
+    /** Header item text weight: SemiBold when focused or the current section, Regular otherwise (400 and 600). */
+    private void styleNavItem(TextView item, boolean focused) {
+        item.setTypeface(AppAdapter.nameFace(this, focused || item.isActivated()));
     }
 
     @Override public void onLibraryUp() {
@@ -1955,6 +2014,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             greeting.setTextColor(greetingColor);
         }
         if (shamsi) shamsiDate.setText(Shamsi.today());
+        // "Четверг, 22 октября": the weekday, day and month in the TV's language, first letter capitalised.
+        String day = new java.text.SimpleDateFormat(getString(R.string.date_format_b3), Locale.getDefault())
+                .format(new java.util.Date());
+        if (!day.isEmpty()) day = day.substring(0, 1).toUpperCase(Locale.getDefault()) + day.substring(1);
+        TextView date = findViewById(R.id.date);
+        if (!day.contentEquals(date.getText())) date.setText(day);
     }
 
     // ---- race-weekend panel (a theme's race_calendar) -----------------------------------------------
@@ -2033,8 +2098,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */
     private void updateWifiLabel() {
         String text = getString(R.string.wifi);
-        boolean vpn = false, online = false;
-        int icon = R.drawable.ic_wifi;
+        boolean vpn = false, online = false, validated = false;
+        int icon = R.drawable.ic_net_wifi;
         // The diya's flame: 0 is out (offline), 1 to 4 follow the Wi-Fi signal, Ethernet burns steady at 4.
         int flame = 0;
         boolean steady = false;
@@ -2051,6 +2116,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 }
                 if (!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) continue;
                 online = true;
+                if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) validated = true;
                 if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) ethernet = true;
                 if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) wifi = true;
             }
@@ -2059,7 +2125,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 vpn = false;
             } else if (ethernet) {
                 text = getString(R.string.ethernet);
-                icon = R.drawable.ic_ethernet;
+                icon = R.drawable.ic_net_ethernet;
                 flame = 4;
                 steady = true;
             } else if (wifi) {
@@ -2106,12 +2172,44 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             diya.setSteady(steady);
             diya.setFlame(flame);
         } else {
-            if (icon != wifiIcon) {
+            // B3 status: grey icon and a dot, green when the internet answers, amber when the network has none;
+            // offline, a red crossed-out icon and "Offline" in red, no dot.
+            int state = !online ? NET_OFFLINE : validated ? NET_OK : NET_NO_INTERNET;
+            if (!online) icon = R.drawable.ic_net_off;
+            if (icon != wifiIcon || state != netState) {
                 wifiIcon = icon;
-                btnWifi.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, 0, 0, 0);
+                netState = state;
+                // The TextView tints all its compound drawables with one list (grey, white when focused), which
+                // suits the icon; the dot keeps its own colour by ignoring tints (StatusDot).
+                Drawable dot = state == NET_OFFLINE ? null
+                        : new StatusDot(state == NET_OK ? NET_GREEN : NET_AMBER, Math.round(6 * density));
+                ColorStateList colors = state == NET_OFFLINE ? ColorStateList.valueOf(NET_RED)
+                        : getColorStateList(R.drawable.nav_item_text);
+                btnWifi.setTextColor(colors);
+                btnWifi.setCompoundDrawableTintList(colors);
+                btnWifi.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(icon), null, dot, null);
             }
+            String status = getString(state == NET_OK ? R.string.wifi : state == NET_NO_INTERNET ? R.string.no_internet : R.string.offline);
+            btnWifi.setContentDescription(state == NET_OFFLINE ? status : btnWifi.getText() + ", " + status);
         }
     }
+
+    /** The network status dot: a filled circle that keeps its colour under the TextView's compound tint. */
+    private static final class StatusDot extends android.graphics.drawable.GradientDrawable {
+        StatusDot(int color, int size) {
+            setShape(OVAL);
+            setColor(color);
+            setSize(size, size);
+        }
+
+        @Override public void setTintList(ColorStateList tint) { }
+        @Override public void setTintMode(android.graphics.PorterDuff.Mode mode) { }
+    }
+
+    private static final int NET_OFFLINE = 0, NET_NO_INTERNET = 1, NET_OK = 2;
+    private static final int NET_GREEN = 0xFF00C968, NET_AMBER = 0xFFF5A524, NET_RED = 0xFFF97066;
+    /** The network state the status was last drawn for, so a refresh that changes nothing draws nothing. */
+    private int netState = -1;
 
     /** config.xml icon_only_buttons. */
     private boolean iconOnlyButtons;

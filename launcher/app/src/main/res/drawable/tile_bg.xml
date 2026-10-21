@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- A neutral tile, 5% white; the focus plate under it shows through as the lighter focused tile. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#FF1C1C1E" />
-    <corners android:radius="16dp" />
+    <solid android:color="#0DF5F5F5" />
+    <corners android:radius="9.75dp" />
 </shape>

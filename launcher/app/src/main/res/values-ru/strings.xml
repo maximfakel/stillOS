@@ -90,4 +90,42 @@
         <item quantity="other">%1$d приложения</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
+    <string name="nav_home">Главная</string>
+    <string name="nav_apps">Приложения</string>
+    <string name="section_favourites">Избранное</string>
+    <string name="section_all_apps">Все приложения</string>
+    <string name="no_internet">Нет интернета</string>
+    <string name="weather_city_line">%1$s · ↑ %2$s ↓ %3$s</string>
+    <string name="weather_loading">Загружаю погоду…</string>
+    <string name="weather_unavailable">Нет данных о погоде</string>
+    <string name="weather_city_title">Город для погоды</string>
+    <string name="weather_city_other">Другой город…</string>
+    <string name="weather_search_hint">Название города</string>
+    <string name="weather_search">Найти</string>
+    <string name="weather_searching">Ищу…</string>
+    <string name="weather_search_none">Ничего не нашлось</string>
+    <string name="weather_search_failed">Не получилось найти: нет связи</string>
+    <string name="wmo_clear">Ясно</string>
+    <string name="wmo_mainly_clear">Малооблачно</string>
+    <string name="wmo_partly">Облачно</string>
+    <string name="wmo_overcast">Пасмурно</string>
+    <string name="wmo_fog">Туман</string>
+    <string name="wmo_drizzle">Морось</string>
+    <string name="wmo_freezing_drizzle">Ледяная морось</string>
+    <string name="wmo_rain_light">Небольшой дождь</string>
+    <string name="wmo_rain">Дождь</string>
+    <string name="wmo_rain_heavy">Сильный дождь</string>
+    <string name="wmo_freezing_rain">Ледяной дождь</string>
+    <string name="wmo_snow_light">Небольшой снег</string>
+    <string name="wmo_snow">Снег</string>
+    <string name="wmo_snow_heavy">Сильный снег</string>
+    <string name="wmo_snow_grains">Снежная крупа</string>
+    <string name="wmo_showers">Ливень</string>
+    <string name="wmo_snow_showers">Снегопад</string>
+    <string name="wmo_thunder">Гроза</string>
+    <string name="wmo_thunder_hail">Гроза с градом</string>
+    <string name="date_format_b3" translatable="false">EEEE, d MMMM</string>
+    <string name="wmo_sleet">Мокрый снег</string>
+    <string name="weather_credit">Погода: MET Norway (yr.no), CC BY 4.0</string>
+    <string name="weather_search_credit">Поиск: © участники OpenStreetMap</string>
 </resources>

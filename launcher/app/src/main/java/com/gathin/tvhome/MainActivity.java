@@ -93,6 +93,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private static final int LAUNCHER_SETTINGS_REQUEST = 42;
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
     static final String ACTION_LAUNCHER_SETTINGS = "com.gathin.tvhome.action.LAUNCHER_SETTINGS";
+    /** Sent by a remote button mapped to "apps" in app_keys: Home, with focus on the first tile below the dock. */
+    static final String ACTION_SHOW_APPS = "com.gathin.tvhome.action.SHOW_APPS";
+    private boolean appsFocusPending;
     /** Tiles per row and dock slots (res/values/config.xml, columns). Set in onCreate. */
     static int COLUMNS = 4;
     private boolean rtlAppGrid;
@@ -593,7 +596,25 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     .build(), vpnCallback);
         }
         // Not after recreate(): the launch intent survives it and would open the settings again.
-        if (savedInstanceState == null) openLauncherSettingsIfAsked(getIntent());
+        if (savedInstanceState == null && !openLauncherSettingsIfAsked(getIntent())) showAppsIfAsked(getIntent());
+    }
+
+    private boolean showAppsIfAsked(Intent intent) {
+        if (intent == null || !ACTION_SHOW_APPS.equals(intent.getAction())) return false;
+        setIntent(new Intent(Intent.ACTION_MAIN));
+        appsFocusPending = true;
+        // Already on Home: focus now. Otherwise the tiles' own focus restore, or the window gaining focus, does it.
+        if (!stopped && tilesReady && hasWindowFocus()) grid.post(this::focusAppsIfPending);
+        return true;
+    }
+
+    /** The first tile below the dock, after any popup over Home is closed. */
+    private void focusAppsIfPending() {
+        if (!appsFocusPending || stopped || !tilesReady || !hasWindowFocus()) return;
+        appsFocusPending = false;
+        if (appLibrary != null) appLibrary.close();
+        if (openPopup != null) openPopup.dismiss();
+        grid.post(() -> focusTile(COLUMNS));
     }
 
     private boolean openLauncherSettingsIfAsked(Intent intent) {
@@ -612,6 +633,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (openLauncherSettingsIfAsked(intent)) return;
+        if (showAppsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
         grid.scrollToPosition(0);
         lastFocused = 0;
@@ -725,6 +747,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             // A newly installed app may have brought a card with it.
             tilesReady = true;
             showCardPrompt();
+            focusAppsIfPending();
         }
     }
 
@@ -766,6 +789,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             else focusTile(pos >= 0 ? pos : returnSlot);
             tilesReady = true;
             showCardPrompt();
+            focusAppsIfPending();
         });
     }
 
@@ -841,6 +865,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (hasFocus) {
             if (libraryFocusPending && appLibrary == null) focusLibrary();
             showCardPrompt();
+            focusAppsIfPending();
         }
     }
 

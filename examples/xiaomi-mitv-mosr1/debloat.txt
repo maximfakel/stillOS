@@ -1,0 +1,87 @@
+# Xiaomi MiTV-MOSR1 (codename hermano), Android TV 11 (SDK 30), firmware RTT8.210119.001.4499, Russia
+# MediaTek chipset, 1280x720 panel, density 213, ro.adb.secure=1.
+# Stock launcher: com.google.android.tvlauncher (Android TV, NOT Google TV / launcherx).
+# Live TV app: com.mitv.livetv, which also owns the HDMI/source switcher, as on the MOSR4.
+#
+# Apply:   TV_HOST=<tv ip> tools/disable.sh examples/xiaomi-mitv-mosr1/debloat.txt
+# Undo:    TV_HOST=<tv ip> tools/restore.sh examples/xiaomi-mitv-mosr1/debloat.txt com.google.android.tvlauncher
+# Everything is DISABLED for user 0, not uninstalled. Comment out any line you want to keep.
+#
+# Tested 2026-10-21: all 33 packages below disabled in 4 batches with a screenshot after each, then
+# com.gathin.tvhome installed by launcher/build-and-install.sh, which disabled tvlauncher and took Home
+# on the first try. After a reboot `tools/check.py` reports nothing drifted. Inputs lists HDMI 1/2,
+# AV and Live TV; Kinopoisk launches from the dock. First-day report, treat as provisional.
+#
+# Based on examples/xiaomi-mitv-mosr4, checked against `pm list packages` on this unit: 22 of its 24
+# packages exist here; com.mitv.tvhome.oemtab and com.mitv.ABUpdateStatus do not.
+#
+# HOME on this build: only com.google.android.tvlauncher and com.android.tv.settings answer HOME.
+# setupwraith is NOT a HOME candidate here, so unlike the Google TV Xiaomis it does not need to go -
+# and it must not: the saved Wi-Fi network belongs to it (dumpsys wifi: cname=...setupwraith), so
+# disabling it would take the TV off Wi-Fi.
+#
+# DO NOT DISABLE on this model:
+#   com.mitv.livetv, com.mitv.livetv.ci_mediatek   Live TV + HDMI/source switcher
+#   mitv.service                 PERSISTENT; TV server, settings, remote keys; installs preloads
+#   com.mitv.overseaservice      PERSISTENT; Netflix key and overseas services
+#   com.mediatek.tv.agent        PERSISTENT; TVRemoteServiceAgent, boot receiver
+#   com.mediatek.tvinput, com.mediatek.tv.service, com.mediatek.network
+#   com.mi.bluetooth             remote + Bluetooth pairing
+#   com.xiaomi.android.tvsetup.partnercustomizer   PERSISTENT; GlobalKeyReceiver, BLE remote pairing
+#   com.google.android.tungsten.setupwraith        owns the saved Wi-Fi network (see above)
+#   mediatek.factorymenu.ui      factory menu - never launch it
+#   com.google.android.apps.mediashell, com.google.android.katniss   Chromecast, Assistant (kept by request)
+#   com.xiaomi.mitv.updateservice, com.mitv.upgrader   OTA kept on; updateservice also updates Rutube
+#   In use: ru.kinopoisk.tv, ru.ivi.client, ru.more.play (Okko), ru.rutube.app, gpm.tnt_premier,
+#           com.vk.tv, com.google.android.youtube.tv
+#
+# Already disabled before this list (by the owner): com.netflix.ninja, com.amazon.amazonvideo.livingroom
+
+# Xiaomi / Google telemetry and attribution
+com.miui.tv.analytics
+com.xiaomi.statistic
+com.xiaomi.tvqs.overseas               # Firebase analytics + DOWNLOAD_WITHOUT_NOTIFICATION
+com.google.android.partnersetup        # Google RLZ attribution pings
+
+# Ad rows, promos and PatchWall
+com.mitv.tvhome.michannel              # Mi content rows
+com.mitv.tvhome.mitvplus               # Mi TV+ ad-funded channels
+com.mitv.tvhome.atv                    # PatchWall; not a HOME candidate on this build
+com.xm.webcontent                      # Xiaomi web promo WebView
+com.mitv.toolhouse
+com.xiaomi.tvhome.fakepremier          # preinstall placeholder tile; the real Premier is gpm.tnt_premier
+
+# Retail demo mode and nagware
+fusion.android.tv.demo                 # in-store demo loop
+com.xiaomi.mitv.tvmanager              # "TV Manager" cleaner
+com.xiaomo.tv.milegal                  # legal notices app
+android.autoinstalls.config.xiaomi.amelie   # silent preload installer config
+
+# Mi Cast / Miracast - Chromecast built-in (mediashell) still works without them
+com.xiaomi.mitv.smartshare
+com.xiaomi.wfdsinkhelperservice
+com.mitv.milinkservice                 # Mi Link discovery, holds ACCESS_FINE_LOCATION
+
+# Preloaded apps, off by choice - re-enable any you use
+com.xiaomi.mimusic2                    # Mi Music
+com.google.android.play.games          # Play Games
+com.mitv.videoplayer                   # media player
+com.mitv.gallery                       # gallery
+com.xiaomi.mitv.mediaexplorer          # USB media browser (Firebase inside)
+com.mitv.dream                         # Mi screensaver, shows as a "WallPaper" tile. It was the active
+                                       # screensaver: switch to the launcher's Clock first with
+                                       # settings put secure screensaver_components com.gathin.tvhome/.ClockDream
+                                       # (undo: ... com.mitv.dream/com.mitv.dream.MiDream)
+
+# Streaming apps not used on this TV - re-enable any you want back
+com.ctcmediagroup.videomore            # more.tv preload stub (v1.0, installed by mitv.service)
+ru.ok.androidtv                        # OK (preload)
+ru.tv1.android.tv                      # Channel One
+com.vgtrk.androidtv                    # Smotrim
+ru.ntv.client.tv                       # NTV
+ru.start.androidmobile                 # START
+com.yandex.browser.tv                  # Yandex Browser
+com.google.android.videos              # Google Play Movies
+com.google.android.youtube.tvmusic     # YouTube Music
+com.playstation.remoteplay             # PS Remote Play
+# ru.vk.store                          # RuStore: kept by the owner

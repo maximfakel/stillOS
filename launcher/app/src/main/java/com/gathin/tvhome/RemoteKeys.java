@@ -73,8 +73,19 @@ final class RemoteKeys {
         return keys;
     }
 
+    /** app_keys target that opens Home on the app grid below the dock instead of an app: "192:apps". */
+    static final String APPS = "apps";
+
     /** Opens an app from a remote button: its TV entry if it has one, else its phone entry. */
     static void launch(Context ctx, String pkg) {
+        if (APPS.equals(pkg)) {
+            try {
+                ctx.startActivity(new Intent(MainActivity.ACTION_SHOW_APPS).setClass(ctx, MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (ActivityNotFoundException ignored) {
+            }
+            return;
+        }
         Intent open = ctx.getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
         if (open == null) open = ctx.getPackageManager().getLaunchIntentForPackage(pkg);
         if (open == null) return;

@@ -100,13 +100,16 @@
             android:descendantFocusability="afterDescendants" />
     </FrameLayout>
 
-    <!-- Header: 56px down and 72px in from the sides in the mockup. -->
+    <!-- Header: 56px down and 72px in from the sides in the mockup. The 12dp right and bottom padding is room for
+         the weather's focus plate, which reaches past the content edge (the root clips at the header's bounds). -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="54dp"
-        android:layout_marginEnd="54dp"
+        android:layout_marginEnd="42dp"
         android:layout_marginTop="42dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="12dp"
         android:clipChildren="false"
         android:clipToPadding="false">
 
@@ -264,12 +267,15 @@
                 android:visibility="gone" />
         </LinearLayout>
 
+        <!-- Not clipped: the weather's focus plate reaches past this column by its own padding. -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:orientation="vertical"
-            android:gravity="end">
+            android:gravity="end"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <!-- Network: the Wi-Fi (or Ethernet) icon, the network name and a status dot, green when the
                  internet answers, amber when the network has no internet, red with "Offline". -->
@@ -283,17 +289,20 @@
                 android:drawableStart="@drawable/ic_net_wifi"
                 android:drawableEnd="@drawable/net_dot" />
 
-            <!-- Weather (Weather.java). Focusable: OK picks the city. -->
+            <!-- Weather (Weather.java). Focusable: OK picks the city. Its focus plate has the header items' room
+                 around the content (12dp, 9dp); the negative margins keep the content where the mockup has it
+                 (22px under the network status, flush with the right edge). -->
             <LinearLayout
                 android:id="@+id/weather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12.5dp"
-                android:layout_marginEnd="-6dp"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
+                android:layout_marginTop="7.5dp"
+                android:layout_marginEnd="-12dp"
+                android:layout_marginBottom="-9dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:orientation="vertical"
                 android:gravity="end"
                 android:background="@drawable/nav_item_bg"

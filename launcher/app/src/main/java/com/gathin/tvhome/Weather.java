@@ -181,7 +181,7 @@ final class Weather {
         c.setConnectTimeout(8000);
         c.setReadTimeout(8000);
         // api.met.no and Nominatim both require a User-Agent that says who is asking.
-        c.setRequestProperty("User-Agent", "CleanYourTV-launcher/1.0 github.com/Gathin23/cleanyourtv");
+        c.setRequestProperty("User-Agent", "stillOS-launcher/1.0 github.com/maximfakel/stillOS");
         try (InputStream in = c.getInputStream()) {
             if (c.getResponseCode() != 200) throw new IllegalStateException("HTTP " + c.getResponseCode());
             ByteArrayOutputStream out = new ByteArrayOutputStream();

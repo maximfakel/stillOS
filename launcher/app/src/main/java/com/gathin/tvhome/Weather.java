@@ -355,7 +355,7 @@ final class Weather {
         if (symbol.contains("rain")) return R.drawable.wx_rain;
         if (symbol.startsWith("fog")) return R.drawable.wx_fog;
         if (symbol.startsWith("clearsky")) return night ? R.drawable.wx_clear_night : R.drawable.wx_clear_day;
-        if (symbol.startsWith("fair") || symbol.startsWith("partlycloudy")) return R.drawable.wx_partly;
+        if (symbol.startsWith("fair") || symbol.startsWith("partlycloudy")) return night ? R.drawable.wx_partly_night : R.drawable.wx_partly;
         return R.drawable.wx_cloudy;
     }
 

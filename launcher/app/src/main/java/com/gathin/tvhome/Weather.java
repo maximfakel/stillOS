@@ -43,7 +43,7 @@ import java.util.concurrent.Executors;
  * (api.met.no, the yr.no data: free, no key, CC BY 4.0, credited in the city picker). City search goes to
  * OpenStreetMap's Nominatim. Open-Meteo was the first choice, but its servers do not answer from this TV's
  * network. The only network the launcher does: one small JSON request every 30 minutes while Home
- * is on screen, and the city search when the owner asks for it. The last answer is kept in SharedPreferences,
+ * or the screensaver is on screen, and the city search when the owner asks for it. The last answer is kept in SharedPreferences,
  * so Home shows it straight away after a reboot and when the network is down.
  *
  * The city is the owner's choice (OK on the weather opens the picker); config.xml weather_city and
@@ -67,6 +67,8 @@ final class Weather {
             {"Таганрог", 47.2362, 38.8969},
     };
 
+    private final Context context;
+    /** Null on the screensaver, which shows the weather but has no city picker. */
     private final Activity activity;
     private final View block;
     private final TextView condition, city, temp;
@@ -78,6 +80,7 @@ final class Weather {
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private boolean running;
     private boolean fetching;
+    private boolean destroyed;
 
     private final Runnable tick = new Runnable() {
         @Override
@@ -87,28 +90,30 @@ final class Weather {
         }
     };
 
-    Weather(Activity activity, View block) {
-        this.activity = activity;
+    /** context is Home (OK on the block opens the city picker) or the screensaver (shown only). */
+    Weather(Context context, View block) {
+        this.context = context;
+        this.activity = context instanceof Activity ? (Activity) context : null;
         this.block = block;
         condition = block.findViewById(R.id.weatherCondition);
         city = block.findViewById(R.id.weatherCity);
         temp = block.findViewById(R.id.weatherTemp);
         icon = block.findViewById(R.id.weatherIcon);
         hours = block.findViewById(R.id.weatherHours);
-        prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        density = activity.getResources().getDisplayMetrics().density;
+        prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        density = context.getResources().getDisplayMetrics().density;
         if (!prefs.contains("city")) {
             prefs.edit()
-                    .putString("city", activity.getString(R.string.weather_city))
-                    .putFloat("lat", Float.parseFloat(activity.getString(R.string.weather_latitude)))
-                    .putFloat("lon", Float.parseFloat(activity.getString(R.string.weather_longitude)))
+                    .putString("city", context.getString(R.string.weather_city))
+                    .putFloat("lat", Float.parseFloat(context.getString(R.string.weather_latitude)))
+                    .putFloat("lon", Float.parseFloat(context.getString(R.string.weather_longitude)))
                     .apply();
         }
-        block.setOnClickListener(v -> showCityPicker());
+        if (activity != null) block.setOnClickListener(v -> showCityPicker());
         render();
     }
 
-    /** While Home is on screen: shows the cached answer and refreshes it when it is 30 minutes old. */
+    /** While Home or the screensaver is on screen: shows the cached answer and refreshes it when it is 30 minutes old. */
     void start() {
         running = true;
         render();
@@ -127,6 +132,7 @@ final class Weather {
     }
 
     void destroy() {
+        destroyed = true;
         stop();
         io.shutdownNow();
     }
@@ -165,7 +171,7 @@ final class Weather {
                     ed.putLong("failed_at", System.currentTimeMillis());
                 }
                 ed.apply();
-                if (!activity.isDestroyed()) render();
+                if (!destroyed) render();
             });
         });
     }
@@ -239,7 +245,7 @@ final class Weather {
                 hi = Math.max(hi, t);
                 lo = Math.min(lo, t);
             }
-            city.setText(hi > -999 ? activity.getString(R.string.weather_city_line, cityName, degrees(hi), degrees(lo)) : cityName);
+            city.setText(hi > -999 ? context.getString(R.string.weather_city_line, cityName, degrees(hi), degrees(lo)) : cityName);
             block.setContentDescription(condition.getText() + ", " + temp.getText() + ", " + cityName);
             addHours(series, cur);
         } catch (Exception e) {
@@ -289,13 +295,13 @@ final class Weather {
 
     /** "20:00 +10°" on a faint chip; an hour with rain or snow gets the blue chip and its icon. */
     private View chip(String time, String degrees, int iconRes) {
-        LinearLayout c = new LinearLayout(activity);
+        LinearLayout c = new LinearLayout(context);
         c.setOrientation(LinearLayout.HORIZONTAL);
         c.setGravity(Gravity.CENTER_VERTICAL);
         c.setPadding(dp(9), 0, dp(9), 0);
         c.setBackgroundResource(iconRes != 0 ? R.drawable.weather_chip_wet_bg : R.drawable.weather_chip_bg);
         if (iconRes != 0) {
-            ImageView i = new ImageView(activity);
+            ImageView i = new ImageView(context);
             i.setImageResource(iconRes);
             i.setColorFilter(ACCENT);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(12), dp(12));
@@ -313,14 +319,14 @@ final class Weather {
     }
 
     private TextView text(String s, float sp, int color, int font) {
-        TextView t = new TextView(activity);
+        TextView t = new TextView(context);
         t.setText(s);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
         t.setTextColor(color);
         t.setIncludeFontPadding(false);
         t.setSingleLine(true);
         try {
-            t.setTypeface(activity.getResources().getFont(font));
+            t.setTypeface(context.getResources().getFont(font));
         } catch (RuntimeException ignored) {
         }
         return t;
@@ -381,7 +387,7 @@ final class Weather {
         picker = new Dialog(activity);
         picker.requestWindowFeature(Window.FEATURE_NO_TITLE);
         LinearLayout panel = panel();
-        panel.addView(title(activity.getString(R.string.weather_city_title)));
+        panel.addView(title(context.getString(R.string.weather_city_title)));
         String current = prefs.getString("city", "");
         View first = null;
         for (Object[] p : PRESETS) {
@@ -391,10 +397,10 @@ final class Weather {
             panel.addView(row);
             if (first == null || name.equals(current)) first = row;
         }
-        View other = row(activity.getString(R.string.weather_city_other), false);
+        View other = row(context.getString(R.string.weather_city_other), false);
         other.setOnClickListener(v -> showSearch());
         panel.addView(other);
-        panel.addView(note(activity.getString(R.string.weather_credit)));
+        panel.addView(note(context.getString(R.string.weather_credit)));
         show(picker, panel, first);
     }
 
@@ -412,8 +418,8 @@ final class Weather {
         picker = new Dialog(activity);
         picker.requestWindowFeature(Window.FEATURE_NO_TITLE);
         LinearLayout panel = panel();
-        panel.addView(title(activity.getString(R.string.weather_city_other)));
-        EditText input = new EditText(activity);
+        panel.addView(title(context.getString(R.string.weather_city_other)));
+        EditText input = new EditText(context);
         input.setHint(R.string.weather_search_hint);
         input.setHintTextColor(0xFF737373);
         input.setTextColor(0xFFF5F5F5);
@@ -425,10 +431,10 @@ final class Weather {
         input.setPadding(dp(12), dp(10), dp(12), dp(10));
         panel.addView(input, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        LinearLayout results = new LinearLayout(activity);
+        LinearLayout results = new LinearLayout(context);
         results.setOrientation(LinearLayout.VERTICAL);
         panel.addView(results);
-        panel.addView(note(activity.getString(R.string.weather_search_credit)));
+        panel.addView(note(context.getString(R.string.weather_search_credit)));
         Runnable search = () -> search(input.getText().toString().trim(), results);
         input.setOnEditorActionListener((v, action, event) -> {
             boolean go = action == EditorInfo.IME_ACTION_SEARCH || action == EditorInfo.IME_ACTION_DONE
@@ -443,7 +449,7 @@ final class Weather {
     private void search(String query, LinearLayout results) {
         results.removeAllViews();
         if (query.isEmpty()) return;
-        results.addView(note(activity.getString(R.string.weather_searching)));
+        results.addView(note(context.getString(R.string.weather_searching)));
         io.execute(() -> {
             List<Object[]> found = new ArrayList<>();
             boolean failed = false;
@@ -471,8 +477,8 @@ final class Weather {
             main.post(() -> {
                 if (picker == null || !picker.isShowing()) return;
                 results.removeAllViews();
-                if (error) results.addView(note(activity.getString(R.string.weather_search_failed)));
-                else if (found.isEmpty()) results.addView(note(activity.getString(R.string.weather_search_none)));
+                if (error) results.addView(note(context.getString(R.string.weather_search_failed)));
+                else if (found.isEmpty()) results.addView(note(context.getString(R.string.weather_search_none)));
                 View firstRow = null;
                 for (Object[] f : found) {
                     String name = (String) f[0];
@@ -487,7 +493,7 @@ final class Weather {
     }
 
     private LinearLayout panel() {
-        LinearLayout panel = new LinearLayout(activity);
+        LinearLayout panel = new LinearLayout(context);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(15), dp(15), dp(15), dp(15));
         GradientDrawable bg = new GradientDrawable();
@@ -525,7 +531,7 @@ final class Weather {
     }
 
     private void show(Dialog d, LinearLayout panel, View focus) {
-        ScrollView scroll = new ScrollView(activity);
+        ScrollView scroll = new ScrollView(context);
         scroll.addView(panel);
         d.setContentView(scroll);
         Window w = d.getWindow();

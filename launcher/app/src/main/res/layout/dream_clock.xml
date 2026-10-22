@@ -1,62 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Screensaver (ClockDream): clock and date that drift around a black screen over an ambient glow. -->
+<!-- Screensaver (ClockDream, ClockActivity), the B3 mockup "B3 — screensaver": Home's clock and date on the
+     left and its weather on the right, in one 1136px row centred on the screen. Sizes are the mockup's px
+     times 0.75, the same as activity_main's header. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF000000">
+    android:background="#FF171717">
 
-    <View
-        android:id="@+id/dreamAmbient"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+    <!-- Bottoms aligned, as the mockup's row (align-items: end). ClockScene nudges it a few dp a minute. -->
     <LinearLayout
         android:id="@+id/dreamContent"
-        android:layout_width="wrap_content"
+        android:layout_width="852dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="bottom">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="true">
+            android:orientation="vertical">
 
-            <TextClock
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:format12Hour="h:mm"
-                android:format24Hour="HH:mm"
-                android:textColor="#E6FFFFFF"
-                android:textSize="120sp"
-                android:fontFamily="@font/outfit_extralight"
-                android:letterSpacing="-0.04"
+                android:orientation="horizontal">
+
+                <!-- The 64px line, lifted 6dp as on Home: Android puts Outfit's tall line at the top. -->
+                <TextClock
+                    android:id="@+id/dreamClock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:translationY="-6dp"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:textColor="#FFF5F5F5"
+                    android:textSize="48sp"
+                    android:fontFamily="@font/outfit_extralight"
+                    android:letterSpacing="-0.04"
+                    android:includeFontPadding="false" />
+
+                <TextClock
+                    android:id="@+id/dreamAmPm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="6dp"
+                    android:format12Hour="a"
+                    android:format24Hour=""
+                    android:textColor="#FFA3A3A3"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/outfit_medium"
+                    android:textAllCaps="true" />
+            </LinearLayout>
+
+            <!-- "Четверг, 22 октября", set by ClockScene (first letter capitalised). -->
+            <TextView
+                android:id="@+id/dreamDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1.5dp"
+                android:paddingStart="3dp"
+                android:paddingBottom="6dp"
+                android:singleLine="true"
+                android:textColor="#FFA3A3A3"
+                android:textSize="14.25sp"
+                android:fontFamily="@font/outfit_regular"
                 android:includeFontPadding="false" />
-
-            <TextClock
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:format12Hour="a"
-                android:format24Hour=""
-                android:textColor="#99FFFFFF"
-                android:textSize="22sp"
-                android:fontFamily="@font/outfit_medium"
-                android:letterSpacing="0.08"
-                android:textAllCaps="true" />
         </LinearLayout>
 
-        <TextClock
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Weather (Weather.java), shown only: the screensaver has no focus and no city picker. -->
+        <LinearLayout
+            android:id="@+id/weather"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginTop="4dp"
-            android:format12Hour="@string/date_format"
-            android:format24Hour="@string/date_format"
-            android:textColor="#8CFFFFFF"
-            android:textSize="18sp"
-            android:fontFamily="@font/outfit_regular"
-            android:letterSpacing="0.14"
-            android:textAllCaps="true" />
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:id="@+id/weatherCondition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:textColor="#FFF5F5F5"
+                        android:textSize="14.25sp"
+                        android:fontFamily="@font/outfit_medium"
+                        android:includeFontPadding="false" />
+
+                    <TextView
+                        android:id="@+id/weatherCity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:singleLine="true"
+                        android:textColor="#FFA3A3A3"
+                        android:textSize="11.25sp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/weatherIcon"
+                    android:layout_width="33dp"
+                    android:layout_height="33dp"
+                    android:layout_marginStart="12dp"
+                    android:tint="#FF6B97FF"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/weatherTemp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="12dp"
+                    android:gravity="center_vertical"
+                    android:translationY="-6dp"
+                    android:singleLine="true"
+                    android:textColor="#FFF5F5F5"
+                    android:textSize="48sp"
+                    android:fontFamily="@font/outfit_extralight"
+                    android:letterSpacing="-0.04"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/weatherHours"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1.5dp"
+                android:orientation="horizontal" />
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

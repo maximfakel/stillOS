@@ -259,6 +259,27 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             handler.post(MainActivity.this::updateWifiLabel);
         }
     };
+    /**
+     * Every network with internet, not just the default one. Plugging in a cable brings Ethernet up unvalidated
+     * next to Wi-Fi and the default only moves once it validates, so the default callback alone can miss the
+     * change and leave the dot amber until the next minute tick.
+     */
+    private final ConnectivityManager.NetworkCallback anyNetworkCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            handler.post(MainActivity.this::updateWifiLabel);
+        }
+
+        @Override
+        public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities caps) {
+            handler.post(MainActivity.this::updateWifiLabel);
+        }
+
+        @Override
+        public void onLost(@NonNull Network network) {
+            handler.post(MainActivity.this::updateWifiLabel);
+        }
+    };
     /** Shows the Inputs pill once the TV registers an input: at boot HDMI inputs can appear after Home is shown. */
     private final TvInputManager.TvInputCallback inputCallback = new TvInputManager.TvInputCallback() {
         @Override
@@ -622,6 +643,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (cm != null) {
             cm.registerDefaultNetworkCallback(networkCallback);
             cm.registerNetworkCallback(new NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    .build(), anyNetworkCallback);
+            cm.registerNetworkCallback(new NetworkRequest.Builder()
                     .addTransportType(NetworkCapabilities.TRANSPORT_VPN)
                     .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
                     .build(), vpnCallback);
@@ -915,6 +939,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (tim != null) tim.unregisterCallback(inputCallback);
         if (cm != null) {
             cm.unregisterNetworkCallback(networkCallback);
+            cm.unregisterNetworkCallback(anyNetworkCallback);
             cm.unregisterNetworkCallback(vpnCallback);
         }
     }

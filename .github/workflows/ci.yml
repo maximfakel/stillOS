@@ -48,4 +48,6 @@ jobs:
         run: |
           size=$(stat -c %s launcher/app/build/outputs/apk/release/app-release.apk)
           echo "release APK: $((size / 1024)) KB"
-          test "$size" -lt 450560 || { echo "APK is over 440 KB; the launcher targets 1 GB TVs, keep it small"; exit 1; }
+          # stillOS bundles 28 white logo tiles (design/brand), about 90 KB over cleanyourtv's 440 KB; the logos
+          # are kept exactly as drawn rather than simplified, so the ceiling here is 600 KB.
+          test "$size" -lt 614400 || { echo "APK is over 600 KB; the launcher targets 1 GB TVs, keep it small"; exit 1; }

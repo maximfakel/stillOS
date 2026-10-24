@@ -29,6 +29,27 @@ LOGOS = {
     "banner_premier": ("paper/premier.svg", 200, 25),
     "banner_rustore": ("rustore/RuStore_White_Logo.svg", 170, 43),
     "banner_youtube": ("YouTube_Logo/yt_logo_white_digital.svg", 180, 40),
+    # stillOS set (design/brand/NOTICE.md): the white versions made by design/brand_white.py, each viewBox
+    # trimmed to the logo; sized to the same optical area (about 6800 px2 on the tile).
+    "banner_netflix": ("netflix/netflix_white.svg", 158, 43),
+    "banner_prime_video": ("prime_video/prime_video_white.svg", 147, 46),
+    "banner_hbo_max": ("hbo_max/hbo_max_white.svg", 83, 60),
+    "banner_disney_plus": ("disney_plus/disney_plus_white.svg", 110, 60),
+    "banner_apple_tv": ("apple_tv/apple_tv_white.svg", 121, 56),
+    "banner_youtube_music": ("youtube_music/youtube_music_white.svg", 150, 45),
+    "banner_spotify": ("spotify/spotify_white.svg", 150, 45),
+    "banner_twitch": ("twitch/twitch_white.svg", 173, 39),
+    "banner_crunchyroll": ("crunchyroll/crunchyroll_white.svg", 200, 32),
+    "banner_plex": ("plex/plex_white.svg", 121, 56),
+    "banner_kodi": ("kodi/kodi_white.svg", 149, 46),
+    "banner_jellyfin": ("jellyfin/jellyfin_white.svg", 154, 44),
+    "banner_wink": ("wink/wink_white.svg", 163, 42),
+    "banner_kion": ("kion/kion_white.svg", 180, 38),
+    "banner_start": ("start/start_white.svg", 200, 30),
+    "banner_amediateka": ("amediateka/amediateka_white.svg", 200, 19),
+    "banner_first_channel": ("first_channel/first_channel_white.svg", 48, 60),
+    "banner_smotrim": ("smotrim/smotrim_white.svg", 124, 55),
+    "banner_zona": ("zona/zona_white.svg", 173, 39),
 }
 
 

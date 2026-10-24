@@ -57,6 +57,27 @@
         <item>gpm.tnt_premier=banner_premier</item>
         <item>ru.vk.store=banner_rustore</item>
         <item>com.google.android.youtube.tv=banner_youtube</item>
+        <item>tv.okko.androidtv=banner_okko</item>
+        <!-- stillOS set: services people install on Android TV, white logos used only to label their apps. -->
+        <item>com.netflix.ninja=banner_netflix</item>
+        <item>com.amazon.amazonvideo.livingroom=banner_prime_video</item>
+        <item>com.wbd.stream=banner_hbo_max</item>
+        <item>com.disney.disneyplus=banner_disney_plus</item>
+        <item>com.apple.atve.androidtv.appletv=banner_apple_tv</item>
+        <item>com.google.android.youtube.tvmusic=banner_youtube_music</item>
+        <item>com.spotify.tv.android=banner_spotify</item>
+        <item>tv.twitch.android.app=banner_twitch</item>
+        <item>com.crunchyroll.crunchyroid=banner_crunchyroll</item>
+        <item>com.plexapp.android=banner_plex</item>
+        <item>org.xbmc.kodi=banner_kodi</item>
+        <item>org.jellyfin.androidtv=banner_jellyfin</item>
+        <item>ru.rt.video.app.tv=banner_wink</item>
+        <item>ru.mts.mtstv=banner_kion</item>
+        <item>ru.start.androidmobile=banner_start</item>
+        <item>ru.amediateka=banner_amediateka</item>
+        <item>ru.tv1.android.tv=banner_first_channel</item>
+        <item>com.vgtrk.smotrim.tv=banner_smotrim</item>
+        <item>mobi.zona=banner_zona</item>
     </string-array>
 
     <!-- TVs with no TvInputManager have no HDMI list to read, but their own source-selection panel

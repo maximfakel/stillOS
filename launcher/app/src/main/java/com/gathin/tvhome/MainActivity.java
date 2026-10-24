@@ -2217,7 +2217,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 Drawable dot = state == NET_OFFLINE ? null
                         : new StatusDot(state == NET_OK ? NET_GREEN : NET_AMBER, Math.round(6 * density));
                 ColorStateList colors = state == NET_OFFLINE ? ColorStateList.valueOf(NET_RED)
-                        : getColorStateList(R.drawable.nav_item_text);
+                        : getColorStateList(R.color.nav_item_text);
                 btnWifi.setTextColor(colors);
                 btnWifi.setCompoundDrawableTintList(colors);
                 btnWifi.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(icon), null, dot, null);

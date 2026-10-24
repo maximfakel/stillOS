@@ -141,49 +141,23 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * dock_row false: 4dp padding above and below, a 4dp gap and a 20dp name label, and 16dp kept under the last
-     * row. The plain grid fits more rows on the screen, and with item_app.xml's roomier spacing the tiles came
+     * dock_row false: 4dp padding above and below, a 4dp gap and a 20dp name label. The plain grid fits more rows on the screen, and with item_app.xml's roomier spacing the tiles came
      * out small with wide gaps between them.
      */
     static final float COMPACT_ITEM_EXTRA_DP = 4 + 4 + 4 + 20;
-    static final float COMPACT_BOTTOM_ROOM_DP = 16;
 
     /** item_app.xml: 8dp padding above and below, a 7dp gap and the 22dp name label under the tile. */
     static final float ITEM_EXTRA_DP = 45;
-    /** DockDecoration's offsets above and below the dock row. */
-    static final float DOCK_EXTRA_DP = 6 + 12;
-    /** Room kept under the last row rows_below_dock asks for (MainActivity places the dock with the same). */
-    static final float BOTTOM_ROOM_DP = 30;
-    /** Room kept above the dock for the dock title (48sp hero name plus its 40dp gap) when dock_title is on. */
-    static final float TITLE_ROOM_DP = 104;
-    /** dock_row false: room above the first row for its zoom and glass (MainActivity places the grid with it). */
-    static final float TOP_ROOM_DP = 12;
 
     /**
-     * Tile width that fits the columns across and, with rows_below_dock > 0, the dock (with its title above it,
-     * if shown) plus that many rows down the grid's height; the smaller wins. With rows_below_dock = 0, or before
-     * the grid has a height, only the width counts, as before. Without this, 2 or 3 rows below the dock did not
-     * fit: the dock was pushed to the top and its title drew over the clock. With dock_row false there is no band
-     * or title to make room for: the first row plus rows_below_dock rows fit under a small top margin.
+     * Tile width for the grid. B3 lays the rows out by the mockup (SectionDecoration) and scrolls whatever does not
+     * fit, so only the columns across decide: the grid height, rows_below_dock and the dock title no longer shrink
+     * the tiles the way the cleanyourtv layout did.
      */
     static int tileWidthPx(int innerWidthPx, int gridHeightPx, int columns, int rowsBelowDock, boolean dockTitle,
                            boolean dockRow, float density) {
-        int w = tileWidthPx(innerWidthPx, columns, density);
-        // B3 lays the rows out by the mockup (SectionDecoration) and scrolls the rest: the width decides.
-        if (gridHeightPx > 0 || rowsBelowDock <= 0) return w;
-        float reserved = (dockRow ? DOCK_EXTRA_DP + BOTTOM_ROOM_DP + (dockTitle ? TITLE_ROOM_DP : 0)
-                : TOP_ROOM_DP + COMPACT_BOTTOM_ROOM_DP) * density;
-        float perItem = (gridHeightPx - reserved) / (rowsBelowDock + 1);
-        float tileH = perItem - (dockRow ? ITEM_EXTRA_DP : COMPACT_ITEM_EXTRA_DP) * density;
-        int byHeight = Math.round(tileH * DESIGN_W_DP / DESIGN_H_DP);
-        // Shrink at most to MIN_HEIGHT_FIT of the width-only size. Below that the tiles look lost in their wide
-        // columns (2 rows under a titled dock came out at 80dp); the rows that still don't fit run off the bottom
-        // and scroll, and MainActivity keeps the title's room above the dock.
-        return Math.max(Math.max(Math.round(80 * density), Math.round(w * MIN_HEIGHT_FIT)), Math.min(w, byHeight));
+        return tileWidthPx(innerWidthPx, columns, density);
     }
-
-    /** The smallest share of the width-only tile size that fitting rows_below_dock into the height may go to. */
-    static final float MIN_HEIGHT_FIT = 0.85f;
 
     private final Context ctx;
     private final int rowsBelowDock;

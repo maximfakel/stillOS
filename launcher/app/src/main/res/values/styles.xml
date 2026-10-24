@@ -35,8 +35,8 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:singleLine">true</item>
         <item name="android:background">@drawable/nav_item_bg</item>
-        <item name="android:textColor">@drawable/nav_item_text</item>
-        <item name="android:drawableTint">@drawable/nav_item_text</item>
+        <item name="android:textColor">@color/nav_item_text</item>
+        <item name="android:drawableTint">@color/nav_item_text</item>
         <item name="android:textSize">13.5sp</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
         <item name="android:drawablePadding">6dp</item>

@@ -9,8 +9,12 @@ to lag and show ads before you could reach your apps.
 
 ![stillOS Home: Netflix, YouTube, Prime Video and Disney+ in Favourites, the weather on the right](docs/stillos/home-en.png)
 
-<sub>Design mockup with the English interface and an international set of apps. The real-device screenshots are in
-the [Russian README](README.ru.md).</sub>
+<sub>Design mockup with the English interface and an international set of apps, made in Paper: the same screen the
+launcher draws.</sub>
+
+![stillOS Home on a Xiaomi MiTV-MOSR1 with the Russian interface](docs/stillos/home-ru.png)
+
+<sub>On the actual TV: a Xiaomi MiTV-MOSR1 with the Russian interface and the owner's apps.</sub>
 
 ## What it changes
 
@@ -31,9 +35,9 @@ the [Russian README](README.ru.md).</sub>
 - **Remote keys.** On the MiTV remote the Netflix key opens VK Video and ▦ opens all apps. Change them in
   `launcher/app/src/main/res/values/config.xml` (`app_keys`).
 
-![The screensaver: clock and date on the left, weather on the right](docs/stillos/screensaver-en.png)
+![The screensaver on the TV: clock and date on the left, weather on the right](docs/stillos/screensaver-ru.png)
 
-<sub>Design mockup of the screensaver in English.</sub>
+<sub>The screensaver on the TV.</sub>
 
 ![All 28 logo tiles](docs/stillos/logos.png)
 

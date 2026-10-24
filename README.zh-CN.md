@@ -17,7 +17,7 @@
 
 通过局域网连接 Android TV 或 Google TV，停用不需要的预装应用、广告和遥测服务，并在兼容设备上安装简洁的原生桌面。无需 root、刷机或 USB 数据线；清理工具采用停用方式，不卸载系统应用，并提供恢复脚本。
 
-本文介绍通用功能和使用方法。不同机型、地区和固件的应用包及限制可能不同，请先核对自己的设备。功能变化以[英文 README](README.md)为准，具体机型记录见[机型清单](examples/README.md)。
+本文介绍通用功能和使用方法。不同机型、地区和固件的应用包及限制可能不同，请先核对自己的设备。功能变化以[英文 README](CLEANYOURTV.md)为准，具体机型记录见[机型清单](examples/README.md)。
 
 ![原生 Google TV 桌面与 CleanYourTV 桌面对比](docs/stock-vs-new-side.jpg)
 
@@ -253,11 +253,11 @@ TV_HOST=192.168.1.50 tools/restore.sh "examples/你的机型/debloat.txt" com.go
 
 **完成后要关闭调试吗？**
 
-需要。本工具使用的传统 TCP ADB（默认 5555 端口）为明文连接，部分固件甚至不强制授权。完成后关闭 USB 调试及网络 / ADB 调试，撤销调试授权，并按[英文 README 的检查步骤](README.md#questions-people-ask)确认端口已关闭。
+需要。本工具使用的传统 TCP ADB（默认 5555 端口）为明文连接，部分固件甚至不强制授权。完成后关闭 USB 调试及网络 / ADB 调试，撤销调试授权，并按[英文 README 的检查步骤](CLEANYOURTV.md#questions-people-ask)确认端口已关闭。
 
 **支持私有 DNS 或 AirPlay 吗？**
 
-私有 DNS 是部分 Android 版本提供的系统功能，并非桌面的广告过滤能力，也无法屏蔽所有视频广告。AirPlay 不属于桌面内置功能，需要另行安装和配置。相关可选方案见[英文常见问题](README.md#questions-people-ask)。
+私有 DNS 是部分 Android 版本提供的系统功能，并非桌面的广告过滤能力，也无法屏蔽所有视频广告。AirPlay 不属于桌面内置功能，需要另行安装和配置。相关可选方案见[英文常见问题](CLEANYOURTV.md#questions-people-ask)。
 
 **有现成 APK 吗？**
 
@@ -271,7 +271,7 @@ TV_HOST=192.168.1.50 tools/restore.sh "examples/你的机型/debloat.txt" com.go
 
 ## 联系与安全报告
 
-电视使用问题可在 [GitHub Discussions](https://github.com/Gathin23/cleanyourtv/discussions) 讨论。媒体与合作联系方式见[英文联系说明](README.md#contact)。安全漏洞请通过仓库 [Security 页面](https://github.com/Gathin23/cleanyourtv/security) 私下报告，详见 [`SECURITY.md`](SECURITY.md)。
+电视使用问题可在 [GitHub Discussions](https://github.com/Gathin23/cleanyourtv/discussions) 讨论。媒体与合作联系方式见[英文联系说明](CLEANYOURTV.md#contact)。安全漏洞请通过仓库 [Security 页面](https://github.com/Gathin23/cleanyourtv/security) 私下报告，详见 [`SECURITY.md`](SECURITY.md)。
 
 ## 许可证
 

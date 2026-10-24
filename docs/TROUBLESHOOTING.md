@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Things that bit us or contributors, so they don't bite you. Commands use `tools/tv.py`; see the
-[README](../README.md#doing-it-by-hand) for setting it up.
+[README](../CLEANYOURTV.md#doing-it-by-hand) for setting it up.
 
 ## Connecting
 

@@ -56,6 +56,7 @@
         <item>ru.more.play=banner_okko</item>
         <item>gpm.tnt_premier=banner_premier</item>
         <item>ru.vk.store=banner_rustore</item>
+        <item>ru.vk.store.tv=banner_rustore</item>
         <item>com.google.android.youtube.tv=banner_youtube</item>
         <item>tv.okko.androidtv=banner_okko</item>
         <!-- stillOS set: services people install on Android TV, white logos used only to label their apps. -->

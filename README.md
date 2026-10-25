@@ -4,8 +4,8 @@
 
 A calm home screen for Android TV. No banners shouting for attention, no rows of recommendations: your apps on quiet
 tiles with their white logos, the time, the weather, and nothing else. stillOS is a restyle of the launcher from
-[cleanyourtv](https://github.com/Gathin23/cleanyourtv), designed in Paper and built for a cheap Xiaomi TV that used
-to lag and show ads before you could reach your apps.
+[cleanyourtv](https://github.com/Gathin23/cleanyourtv), made for a Xiaomi TV whose stock home screen put ads and
+recommendations in front of the apps.
 
 ![stillOS Home: Netflix, YouTube, Prime Video and Disney+ in Favourites, the weather on the right](docs/stillos/home-en.png)
 

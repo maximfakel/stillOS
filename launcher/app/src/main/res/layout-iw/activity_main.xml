@@ -194,6 +194,7 @@
                     android:visibility="gone" />
 
                 <LinearLayout
+                    android:clipChildren="false"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
@@ -203,11 +204,14 @@
                     <!-- 64px Outfit in a 64px line. Outfit's ascent and descent are taller than the line: Paper splits
                          the overflow above and below, Android pins the text to the top, which drew the digits 8px
                          (6dp) lower than the mockup, close to the date. translationY puts them back without moving
-                         anything around them. -->
+                         anything around them. Pinned to the top, the baseline sat on the bottom edge of a 48dp box,
+                         which cut off the bottom of 0, 3, 8: the box is 8dp taller, and the -8dp margin keeps the
+                         row and the date where they were (the row lets it draw past its own edge). -->
                     <TextClock
                         android:id="@+id/clock"
                         android:layout_width="wrap_content"
-                        android:layout_height="48dp"
+                        android:layout_height="56dp"
+                        android:layout_marginBottom="-8dp"
                         android:gravity="center_vertical"
                         android:translationY="-6dp"
                         android:format12Hour="h:mm"
@@ -320,6 +324,7 @@
                 android:clickable="true">
 
                 <LinearLayout
+                    android:clipChildren="false"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -361,14 +366,19 @@
                         android:tint="#FF6B97FF"
                         android:contentDescription="@null" />
 
-                    <!-- Same 64px line as the clock, lifted the same 6dp to sit where the mockup draws it. -->
+                    <!-- Same 64px line as the clock, where the mockup draws it. Its box is 6dp taller for the same reason
+                         as the clock's, the room split above and below (this row centres its items), so the baseline
+                         and the row stay put; translationY makes up the 3dp the box grew upwards, on top of the 6dp
+                         lift. Whole pixels at 1.33 (72px, 4px), so the row keeps its height to the pixel. -->
                     <TextView
                         android:id="@+id/weatherTemp"
                         android:layout_width="wrap_content"
-                        android:layout_height="48dp"
+                        android:layout_height="54dp"
+                    android:layout_marginTop="-3dp"
+                        android:layout_marginBottom="-3dp"
                         android:layout_marginStart="12dp"
                         android:gravity="center_vertical"
-                        android:translationY="-6dp"
+                        android:translationY="-3dp"
                         android:singleLine="true"
                         android:textColor="#FFF5F5F5"
                         android:textSize="48sp"

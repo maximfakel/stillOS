@@ -22,6 +22,7 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:clipChildren="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -30,7 +31,8 @@
                 <TextClock
                     android:id="@+id/dreamClock"
                     android:layout_width="wrap_content"
-                    android:layout_height="48dp"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="-8dp"
                     android:gravity="center_vertical"
                     android:translationY="-6dp"
                     android:format12Hour="h:mm"
@@ -85,6 +87,7 @@
             android:gravity="end">
 
             <LinearLayout
+                android:clipChildren="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -129,10 +132,12 @@
                 <TextView
                     android:id="@+id/weatherTemp"
                     android:layout_width="wrap_content"
-                    android:layout_height="48dp"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="-3dp"
+                    android:layout_marginBottom="-3dp"
                     android:layout_marginStart="12dp"
                     android:gravity="center_vertical"
-                    android:translationY="-6dp"
+                    android:translationY="-3dp"
                     android:singleLine="true"
                     android:textColor="#FFF5F5F5"
                     android:textSize="48sp"

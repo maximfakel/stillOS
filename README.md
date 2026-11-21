@@ -16,6 +16,10 @@ launcher draws.</sub>
 
 <sub>On the actual TV: a Xiaomi MiTV-MOSR1 with the Russian interface and the owner's apps.</sub>
 
+![The Apps screen on the TV: Favourites, then all apps, under the header](docs/stillos/apps-ru.png)
+
+<sub>The Apps screen on the TV.</sub>
+
 ## What it changes
 
 - **Neutral tiles with white logos.** Every app gets the same dark tile with the service's own logo in white, instead
@@ -31,8 +35,11 @@ launcher draws.</sub>
 - **A screensaver to match.** The clock, the date and the weather in one row. It drifts a few pixels a minute, too
   slowly to notice, so nothing burns in.
 - **Calm motion.** One soft focus plate glides between tiles; nothing zooms or bounces.
-- **Favourites you edit from the remote.** Hold OK on Settings and choose *Edit favourites*.
-- **Remote keys.** On the MiTV remote the Netflix key opens VK Video and ▦ opens all apps. Change them in
+- **Home and Apps.** Home has the clock, the weather and one row of Favourites. Every app is on the Apps screen,
+  Favourites first; Back returns to Home.
+- **A menu on every tile.** Hold OK on a tile (or press Menu on the remote): *Move*, *Replace* on Home,
+  *Add to Favourites* or *Remove from Favourites* on the Apps screen, and *App info*.
+- **Remote keys.** On the MiTV remote the Netflix key opens VK Video and ▦ opens the Apps screen. Change them in
   `launcher/app/src/main/res/values/config.xml` (`app_keys`).
 
 ![The screensaver on the TV: clock and date on the left, weather on the right](docs/stillos/screensaver-ru.png)

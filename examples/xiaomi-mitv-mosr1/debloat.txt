@@ -87,6 +87,8 @@ com.playstation.remoteplay             # PS Remote Play
 # ru.vk.store                          # RuStore: kept by the owner
 
 # Xiaomi's app updater. Turned off on 2026-11-21: it updated PatchWall (com.mitv.tvhome.atv, to 4.21.148) and
-# Mi TV+ on its own, and an update turns a disabled app back on, so PatchWall came up in place of the launcher.
-# It also installs apps. RuStore TV now updates Rutube and the other apps. Re-enable it to check for firmware.
+# Mi TV+ on its own, both came back on afterwards (START too, without an update; the updater may change
+# component state), so PatchWall came up in place of the launcher. It also installs apps; RuStore TV now
+# updates Rutube and the others. It holds the same recovery grants as com.mitv.upgrader: whether firmware
+# updates still arrive with it off is untested, so re-enable it before looking for one.
 com.xiaomi.mitv.updateservice

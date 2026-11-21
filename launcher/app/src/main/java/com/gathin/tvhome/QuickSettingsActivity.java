@@ -2,6 +2,7 @@ package com.gathin.tvhome;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -26,7 +27,7 @@ public final class QuickSettingsActivity extends Activity {
         findViewById(R.id.scrim).setOnClickListener(v -> finish());
         LinearLayout rows = findViewById(R.id.rows);
         addRow(rows, R.drawable.ic_settings, R.string.tv_settings, 0, new Intent(Settings.ACTION_SETTINGS));
-        addRow(rows, R.drawable.ic_picture, R.string.quick_picture, 0, new Intent(Settings.ACTION_DISPLAY_SETTINGS));
+        addRow(rows, R.drawable.ic_picture, R.string.quick_picture, 0, displayIntent());
         addRow(rows, R.drawable.ic_wifi, R.string.quick_network, 0, new Intent(Settings.ACTION_WIFI_SETTINGS));
         addRow(rows, R.drawable.ic_apps, R.string.quick_apps, R.string.quick_apps_hint,
                 new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS));
@@ -68,5 +69,17 @@ public final class QuickSettingsActivity extends Activity {
             finish();
         });
         rows.addView(row);
+    }
+
+    /**
+     * The TV's picture settings. On some Xiaomi sets the AOSP DISPLAY_SETTINGS action resolves to an empty stub,
+     * so Xiaomi's own PictureActivity comes first where it is installed (upstream #3260). On the MiTV-MOSR1 the
+     * standard action already opens the real picture page.
+     */
+    private Intent displayIntent() {
+        Intent xiaomi = new Intent().setComponent(new ComponentName("com.android.tv.settings",
+                "com.xiaomi.mitv.settings.picture.PictureActivity"));
+        if (getPackageManager().resolveActivity(xiaomi, 0) != null) return xiaomi;
+        return new Intent(Settings.ACTION_DISPLAY_SETTINGS);
     }
 }

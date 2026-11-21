@@ -24,6 +24,8 @@ final class ClockScene {
     private final Random random = new Random();
     private final Context context;
     private final View content;
+    /** Keeps the TextClocks current where the firmware stops ACTION_TIME_TICK (Android before 12). */
+    private final ClockRefresh clockRefresh;
     private final TextView date;
     private final Weather weather;
     private final float density;
@@ -41,6 +43,7 @@ final class ClockScene {
     ClockScene(Context context, View root) {
         this.context = context;
         content = root.findViewById(R.id.dreamContent);
+        clockRefresh = new ClockRefresh(content);
         date = root.findViewById(R.id.dreamDate);
         weather = new Weather(context, root.findViewById(R.id.weather));
         density = context.getResources().getDisplayMetrics().density;
@@ -53,10 +56,12 @@ final class ClockScene {
         content.animate().alpha(1f).setDuration(1200).start();
         handler.removeCallbacks(tick);
         handler.postDelayed(tick, untilNextMinute());
+        clockRefresh.start();
     }
 
     void stop() {
         handler.removeCallbacks(tick);
+        clockRefresh.stop();
         weather.stop();
     }
 

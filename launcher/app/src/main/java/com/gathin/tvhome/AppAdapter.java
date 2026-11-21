@@ -55,6 +55,9 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         /** Called for a D-pad direction key on a tile. Return true when handled (focus stays put). */
         boolean onTileVerticalKey(int position, int keyCode);
 
+        /** OK held on a tile: the tile's menu (move, favourites, app info). */
+        void onTileLongPressed(int position, View card);
+
         void onLibraryRequested();
         void onLibraryFocused();
         void onLibraryUp();
@@ -195,6 +198,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /** Tile names and bundled banners that replace the app's own (config.xml, app_labels and app_banners). */
     private final Map<String, String> appLabels, appBanners;
     private final List<Entry> items = new ArrayList<>();
+    /** Home shows only the Favourites row; the Apps screen shows every tile (MainActivity.showAppsScreen). */
+    private boolean dockOnly;
 
     AppAdapter(Context ctx, TileListener listener, int dockSize, Config cfg) {
         this.ctx = ctx;
@@ -426,14 +431,22 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         h.card.setOnClickListener(v -> launch(e));
         h.card.setOnLongClickListener(v -> {
-            Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + e.pkg));
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try {
-                ctx.startActivity(i);
-            } catch (ActivityNotFoundException ignored) {
-            }
+            int at = h.getBindingAdapterPosition();
+            if (at != RecyclerView.NO_POSITION) listener.onTileLongPressed(at, v);
             return true;
         });
+    }
+
+    /** The system's page for the app at position (App info), if there is one. */
+    void openAppInfo(int position) {
+        String pkg = packageAt(position);
+        if (pkg == null) return;
+        Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg));
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            ctx.startActivity(i);
+        } catch (ActivityNotFoundException ignored) {
+        }
     }
 
     /** Opens the tile's activity by explicit component, with no extras: a card can name nothing else. */
@@ -468,12 +481,31 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return items.size() + (showLibrary ? 1 : 0);
+        return dockOnly ? appCount() : items.size() + (showLibrary ? 1 : 0);
     }
 
-    int appCount() { return items.size(); }
+    /** Tiles on screen: only the Favourites row on Home, every app on the Apps screen. */
+    int appCount() { return dockOnly ? Math.min(dockSize, items.size()) : items.size(); }
 
-    boolean isLibraryAt(int position) { return showLibrary && position == items.size(); }
+    boolean isLibraryAt(int position) { return !dockOnly && showLibrary && position == items.size(); }
+
+    /** Home (true) shows only the Favourites row; the Apps screen (false) every tile. */
+    void setDockOnly(boolean on) {
+        if (dockOnly == on) return;
+        dockOnly = on;
+        notifyDataSetChanged();
+    }
+
+    boolean isDockOnly() { return dockOnly; }
+
+    /** Whether the app at position is one of the Favourites (the first row). */
+    boolean isFavouriteAt(int position) { return position >= 0 && position < Math.min(dockSize, items.size()); }
+
+    /** Whether the tile at position is an app (not an empty slot or the "Default home" tile). */
+    boolean isAppAt(int position) {
+        return position >= 0 && position < items.size() && items.get(position).kind != Entry.EMPTY
+                && items.get(position).kind != Entry.HOME_SETTINGS;
+    }
 
     @Override public int getItemViewType(int position) { return isLibraryAt(position) ? 1 : 0; }
 
@@ -521,6 +553,11 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     void move(int from, int to) {
         if (from == to || from < 0 || to < 0 || from >= movableCount() || to >= movableCount()) return;
         items.add(to, items.remove(from));
+        if (dockOnly && (from >= dockSize || to >= dockSize)) {
+            // Home shows only the first row: a move from or to a tile it does not show is a change of the row.
+            notifyDataSetChanged();
+            return;
+        }
         notifyItemMoved(from, to);
         // The dock row hides names by position: rebind the tiles whose side of the dock edge changed.
         if (from < dockSize || to < dockSize) {

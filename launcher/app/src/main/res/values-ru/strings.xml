@@ -94,6 +94,13 @@
     <string name="nav_apps">Приложения</string>
     <string name="section_favourites">Избранное</string>
     <string name="section_all_apps">Все приложения</string>
+    <string name="tile_move">Переместить</string>
+    <string name="tile_replace">Заменить</string>
+    <string name="tile_add_favourite">Добавить в избранное</string>
+    <string name="tile_remove_favourite">Убрать из избранного</string>
+    <string name="tile_app_info">О приложении</string>
+    <string name="tile_move_hint">Двигайте плитку стрелками и нажмите ОК.</string>
+    <string name="tile_replace_pick_app">Выберите приложение для этого места и нажмите ОК. Назад — отмена.</string>
     <string name="no_internet">Нет интернета</string>
     <string name="weather_city_line">%1$s · ↑ %2$s ↓ %3$s</string>
     <string name="weather_loading">Загружаю погоду…</string>

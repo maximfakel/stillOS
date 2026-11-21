@@ -112,6 +112,13 @@
     <string name="nav_apps">Apps</string>
     <string name="section_favourites">Favourites</string>
     <string name="section_all_apps">All apps</string>
+    <string name="tile_move">Move</string>
+    <string name="tile_replace">Replace</string>
+    <string name="tile_add_favourite">Add to Favourites</string>
+    <string name="tile_remove_favourite">Remove from Favourites</string>
+    <string name="tile_app_info">App info</string>
+    <string name="tile_move_hint">Move the tile with the arrows, then press OK.</string>
+    <string name="tile_replace_pick_app">Choose the app to put in this place and press OK. Back to cancel.</string>
     <string name="no_internet">No internet</string>
     <!-- City line under the condition: %1$s city, %2$s day high, %3$s day low, e.g. "Rostov-on-Don · ↑ +14° ↓ +6°". -->
     <string name="weather_city_line">%1$s · ↑ %2$s ↓ %3$s</string>

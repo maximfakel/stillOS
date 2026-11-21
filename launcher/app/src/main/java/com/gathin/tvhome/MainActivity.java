@@ -490,6 +490,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         dockApps = cfg.dockApps;
         fillDockLeavesSlots = !cfg.fillDock;
         adapter.setSavedOrder(Order.ranks(Order.load(Order.file(this)), dockApps));
+        adapter.setDockOnly(true);   // Home: only the Favourites row; the Apps screen shows the rest
         grid.setAdapter(adapter);
 
         // B3 layout: the grid starts under the header and its top padding holds the "Favourites" title.
@@ -549,12 +550,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return true;
         });
         btnSettings.setOnClickListener(v -> open(systemIntent(Settings.ACTION_SETTINGS)));
-        // B3 navigation: Home is the current section (a faint plate), Apps goes to the All apps row.
+        // B3 navigation: the current section has a faint plate. Home is the clock, the weather and Favourites;
+        // Apps is its own screen with every tile.
         btnHome = findViewById(R.id.btnHome);
         btnHome.setActivated(true);
-        btnHome.setOnClickListener(v -> focusTile(0));
+        btnHome.setOnClickListener(v -> showHome());
         btnApps = findViewById(R.id.btnApps);
-        btnApps.setOnClickListener(v -> focusTile(Math.min(COLUMNS, Math.max(0, adapter.appCount() - 1))));
+        btnApps.setOnClickListener(v -> showApps());
+        gridFrame = findViewById(R.id.gridFrame);
+        clockGroup = findViewById(R.id.clockGroup);
         weatherBlock = findViewById(R.id.weather);
         weather = new Weather(this, weatherBlock);
         btnReorder = findViewById(R.id.btnReorder);
@@ -684,13 +688,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         return true;
     }
 
-    /** The first tile below the dock, after any popup over Home is closed. */
+    /** The Apps screen, after any popup over Home is closed. */
     private void focusAppsIfPending() {
         if (!appsFocusPending || stopped || !tilesReady || !hasWindowFocus()) return;
         appsFocusPending = false;
-        if (appLibrary != null) appLibrary.close();
-        if (openPopup != null) openPopup.dismiss();
-        grid.post(() -> focusTile(COLUMNS));
+        grid.post(this::showApps);
     }
 
     private boolean openLauncherSettingsIfAsked(Intent intent) {
@@ -711,6 +713,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (openLauncherSettingsIfAsked(intent)) return;
         if (showAppsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
+        if (reordering) endReorder();
+        setScreen(false);
         // Back to the top with Favourites under their title: scrollToPosition(0) only scrolls far enough to show
         // the row, which with clipToPadding off leaves it 30dp too high, under the grid's top edge.
         grid.stopScroll();
@@ -1036,6 +1040,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (handleSettingsKey(event)) return true;
+        if (!reordering && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
+            // The remote's Menu key on a tile opens the same menu as holding OK.
+            int pos = focusedTilePosition();
+            if (pos < 0) return super.dispatchKeyEvent(event);
+            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) onTileLongPressed(pos, getCurrentFocus());
+            return true;
+        }
         if (!reordering) return super.dispatchKeyEvent(event);
         if (dockEditing) return dispatchDockEdit(event);
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
@@ -1053,7 +1064,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     return true;
                 default:
                     if (ok || back) {
-                        if (!down) drop();
+                        if (!down) {
+                            drop();
+                            if (moveOnce) endReorder();   // a move from the tile menu is one tile only
+                        }
                         return true;
                     }
                     return super.dispatchKeyEvent(event);
@@ -1086,6 +1100,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             endReorder();
             return;
         }
+        if (!appsScreen) setScreen(true);   // the order of all the apps: on the screen that shows them
         if (!beginReorder()) return;
         focusTile(Math.max(0, Math.min(lastFocused, adapter.movableCount() - 1)));
         Toast.makeText(this, R.string.reorder_hint, Toast.LENGTH_LONG).show();
@@ -1106,6 +1121,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Edit dock (Settings menu): focus goes to the first dock place, which OK then chooses. */
     private void startDockEdit() {
         if (reordering) endReorder();
+        if (!appsScreen) setScreen(true);   // the apps to choose from are on the Apps screen
         if (!beginReorder()) return;
         dockEditing = true;
         dockEditSlot = -1;
@@ -1126,7 +1142,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         boolean back = code == KeyEvent.KEYCODE_BACK || code == KeyEvent.KEYCODE_ESCAPE;
         if (back) {
             if (!down) {
-                if (dockEditSlot >= 0) {
+                if (replaceFromHome) {
+                    int slot = dockEditSlot;
+                    endReorder();
+                    setScreen(false);
+                    refocusAfterLayout(Math.max(0, slot));
+                } else if (dockEditSlot >= 0) {
                     int slot = dockEditSlot;
                     dockEditSlot = -1;
                     dimOthers();
@@ -1166,7 +1187,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 adapter.move(adapter.positionOf(slotKey), pos);
             });
         }
+        boolean home = replaceFromHome;
         endReorder();
+        if (home) setScreen(false);
         refocusAfterLayout(slot);
     }
 
@@ -1202,6 +1225,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Ends the mode and saves the order if it changed since the mode started. */
     private void endReorder() {
         if (!reordering) return;
+        moveOnce = false;
+        replaceFromHome = false;
         dockEditing = false;
         dockEditSlot = -1;
         drop();
@@ -1230,6 +1255,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private void moveBy(int keyCode) {
         int from = adapter.positionOf(movingKey);
         int n = adapter.movableCount();
+        if (!appsScreen) n = Math.min(n, COLUMNS);   // Home shows only Favourites: the tile stays in that row
         if (from < 0 || from >= n) {
             drop();
             return;
@@ -1285,7 +1311,148 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     @Override
     public void onBackPressed() {
-        // Home screen: Back goes nowhere.
+        // The Apps screen goes back to Home; Home itself goes nowhere.
+        if (appsScreen) showHome();
+    }
+
+    // ---- Home and the Apps screen ----------------------------------------------------------------
+
+    /** Grid top on Home: Favourites sit low, where the All apps row used to start (527px of 720). */
+    static final float HOME_GRID_TOP_DP = 365.25f;
+    /** Grid top on the Apps screen: right under the nav row, the clock and the weather are hidden. */
+    static final float APPS_GRID_TOP_DP = 102f;
+
+    private void showHome() {
+        if (reordering) endReorder();
+        setScreen(false);
+        refocusAfterLayout(0);
+    }
+
+    private void showApps() {
+        if (appLibrary != null) appLibrary.close();
+        if (openPopup != null) openPopup.dismiss();
+        if (reordering) endReorder();
+        setScreen(true);
+        refocusAfterLayout(0);
+    }
+
+    /**
+     * Home (false): the clock, the weather and the Favourites row. Apps (true): every tile, Favourites first,
+     * scrolling under the nav row. One grid and one adapter for both, so moving tiles and editing Favourites
+     * work the same on either.
+     */
+    private void setScreen(boolean apps) {
+        appsScreen = apps;
+        btnHome.setActivated(!apps);
+        btnApps.setActivated(apps);
+        styleNavItem(btnHome, btnHome.isFocused());
+        styleNavItem(btnApps, btnApps.isFocused());
+        clockGroup.setVisibility(apps ? View.GONE : View.VISIBLE);
+        weatherBlock.setVisibility(apps ? View.GONE : View.VISIBLE);
+        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) gridFrame.getLayoutParams();
+        int top = Math.round((apps ? APPS_GRID_TOP_DP : HOME_GRID_TOP_DP) * density);
+        if (lp.topMargin != top) {
+            lp.topMargin = top;
+            gridFrame.setLayoutParams(lp);
+        }
+        grid.stopScroll();
+        if (!apps && lastFocused >= COLUMNS) {
+            lastFocused = 0;
+            lastFocusedKey = adapter.keyAt(0);
+        }
+        adapter.setDockOnly(!apps);
+        ((GridLayoutManager) grid.getLayoutManager()).scrollToPositionWithOffset(0, 0);
+        hideGlass();
+    }
+
+    // ---- the tile menu (OK held on a tile) -------------------------------------------------------
+
+    @Override
+    public void onTileLongPressed(int position, View card) {
+        if (reordering || !adapter.isAppAt(position)) return;
+        String key = adapter.keyAt(position);
+        boolean favourite = adapter.isFavouriteAt(position);
+        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        LinearLayout rows = panel.findViewById(R.id.rows);
+        PopupWindow popup = glassPopup(panel, (int) (200 * density));
+        addSettingsMenuRow(rows, popup, R.string.tile_move, () -> startMove(key));
+        if (dockRow && !appsScreen) {
+            addSettingsMenuRow(rows, popup, R.string.tile_replace, () -> replaceFavourite(key));
+        } else if (dockRow && adapter.movableCount() > COLUMNS) {
+            addSettingsMenuRow(rows, popup, favourite ? R.string.tile_remove_favourite : R.string.tile_add_favourite,
+                    () -> toggleFavourite(key));
+        }
+        addSettingsMenuRow(rows, popup, R.string.tile_app_info, () -> adapter.openAppInfo(adapter.positionOf(key)));
+        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popup.setWidth(Math.max((int) (200 * density), panel.getMeasuredWidth()));
+        // Under the tile's name; above the tile when that runs off the screen (Favourites sit low on Home).
+        // Anchored to the tile's item, which holds the name too, so the menu never covers it.
+        View item = (View) card.getParent();
+        int[] at = new int[2];
+        item.getLocationOnScreen(at);
+        int gap = (int) (10 * density);
+        int below = at[1] + item.getHeight() + gap + panel.getMeasuredHeight();
+        int yOff = below <= root.getHeight() ? gap : -(item.getHeight() + gap + panel.getMeasuredHeight());
+        panel.setAlpha(0f);
+        panel.setPivotY(yOff > 0 ? 0f : panel.getMeasuredHeight());
+        panel.setScaleY(0.92f);
+        // Right-hand tiles: the menu's right edge on the tile's, so it stays inside the grid.
+        boolean rightHalf = at[0] + item.getWidth() / 2 > root.getWidth() / 2;
+        popup.showAsDropDown(item, 0, yOff, rightHalf ? Gravity.END : Gravity.START);
+        panel.animate().alpha(1f).scaleY(1f).setDuration(220)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
+        rows.getChildAt(0).requestFocus();
+    }
+
+    /** Move: the tile is picked up at once; arrows move it, OK (or Back) puts it down and ends the move. */
+    private void startMove(String key) {
+        if (!beginReorder()) return;
+        moveOnce = true;
+        int pos = adapter.positionOf(key);   // beginReorder can rebuild the tiles
+        if (pos < 0) {
+            endReorder();
+            return;
+        }
+        pickUp(pos);
+        refocusAfterLayout(pos);
+        Toast.makeText(this, R.string.tile_move_hint, Toast.LENGTH_SHORT).show();
+    }
+
+    /** Replace, on Home: the Apps screen opens to choose the app for this Favourites place, then back Home. */
+    private void replaceFavourite(String key) {
+        setScreen(true);
+        if (!beginReorder()) {
+            showHome();
+            return;
+        }
+        int slot = adapter.positionOf(key);
+        if (slot < 0 || slot >= COLUMNS) {
+            showHome();
+            return;
+        }
+        dockEditing = true;
+        dockEditSlot = slot;
+        replaceFromHome = true;
+        dimOthers();
+        refocusAfterLayout(Math.min(COLUMNS, adapter.movableCount() - 1));
+        Toast.makeText(this, R.string.tile_replace_pick_app, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Add to / remove from Favourites, on the Apps screen. Added, the app takes the last Favourites place and the
+     * app there moves to the start of All apps; removed, it goes to the start of All apps and that app moves up.
+     */
+    private void toggleFavourite(String key) {
+        if (!beginReorder()) return;
+        int pos = adapter.positionOf(key);
+        if (pos >= 0 && pos < adapter.movableCount()) {
+            int to = pos < COLUMNS ? COLUMNS : COLUMNS - 1;
+            keepScroll(() -> adapter.move(pos, to));
+            endReorder();
+            refocusAfterLayout(adapter.positionOf(key));
+        } else {
+            endReorder();
+        }
     }
 
     // ---- glass highlight -------------------------------------------------------------------------
@@ -1930,7 +2097,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     rtlAppGrid, keyCode == KeyEvent.KEYCODE_DPAD_LEFT);
         }
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (position < COLUMNS) return false;          // dock row: let focus move to the top bar
+            if (position < COLUMNS) {
+                // First row: up into the header. The right-hand tiles go to the weather when it shows (Home), the
+                // rest to the current section in the nav row. The default focus search took the weather from the
+                // left tiles too once Favourites moved down, the clock between them taking no focus.
+                boolean right = rtlAppGrid ? 2 * position < COLUMNS - 1 : 2 * position >= COLUMNS;
+                View up = right && weatherBlock.getVisibility() == View.VISIBLE ? weatherBlock
+                        : appsScreen ? btnApps : btnHome;
+                up.requestFocus();
+                grid.playSoundEffect(SoundEffectConstants.NAVIGATION_UP);
+                return true;
+            }
             target = position - COLUMNS;
         } else {
             int lastRowStart = ((count - 1) / COLUMNS) * COLUMNS;
@@ -1959,6 +2136,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private TextView btnHome, btnApps;
+    /** The grid's frame (moves between Home and the Apps screen) and the clock with the date. */
+    private View gridFrame, clockGroup;
+    /** The Apps screen is showing (setScreen). */
+    private boolean appsScreen;
+    /** A move started from the tile menu: putting the tile down ends reorder mode. */
+    private boolean moveOnce;
+    /** Replace from the tile menu on Home: when the app is chosen (or Back), back to Home. */
+    private boolean replaceFromHome;
     private ViewTreeObserver.OnGlobalFocusChangeListener glassFocusListener;
     private View weatherBlock;
     private Weather weather;

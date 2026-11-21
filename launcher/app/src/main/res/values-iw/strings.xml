@@ -107,6 +107,13 @@
     <string name="nav_apps">אפליקציות</string>
     <string name="section_favourites">מועדפים</string>
     <string name="section_all_apps">כל האפליקציות</string>
+    <string name="tile_move">העברה</string>
+    <string name="tile_replace">החלפה</string>
+    <string name="tile_add_favourite">הוספה למועדפים</string>
+    <string name="tile_remove_favourite">הסרה מהמועדפים</string>
+    <string name="tile_app_info">פרטי האפליקציה</string>
+    <string name="tile_move_hint">הזיזו את האריח בחצים ולחצו OK.</string>
+    <string name="tile_replace_pick_app">בחרו את האפליקציה למקום הזה ולחצו OK. חזרה לביטול.</string>
     <string name="no_internet">אין אינטרנט</string>
     <string name="weather_city_line">%1$s · ↑ %2$s ↓ %3$s</string>
     <string name="weather_loading">טוען מזג אוויר…</string>

@@ -77,13 +77,15 @@
         android:alpha="0"
         android:importantForAccessibility="no" />
 
-    <!-- The grid starts under the header (264px = 198dp in the mockup); its 30dp top padding holds the
-         "Favourites" title SectionDecoration draws. It clips at its own top, so rows scroll up under the
-         header's edge instead of over the clock. -->
+    <!-- Home: the Favourites row sits low (its tiles at 527px, where the All apps row started in the mockup);
+         the grid's 30dp top padding holds the "Favourites" title SectionDecoration draws. The Apps screen moves
+         this frame up under the nav row (MainActivity.setScreen). It clips at its own top, so rows scroll up
+         under its edge. -->
     <FrameLayout
+        android:id="@+id/gridFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="198dp">
+        android:layout_marginTop="365.25dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/grid"
@@ -177,94 +179,102 @@
                     android:drawableStart="@drawable/ic_apps" />
             </LinearLayout>
 
-            <!-- Kept for the code that sets it; B3 shows no greeting. -->
-            <TextView
-                android:id="@+id/greeting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
-
+            <!-- The clock, the date and their extras: Home only, the Apps screen hides them (MainActivity.setScreen). -->
             <LinearLayout
+                android:id="@+id/clockGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:orientation="horizontal"
-                android:baselineAligned="true">
+                android:orientation="vertical">
 
-                <!-- 64px Outfit in a 64px line. Outfit's ascent and descent are taller than the line: Paper splits
-                     the overflow above and below, Android pins the text to the top, which drew the digits 8px
-                     (6dp) lower than the mockup, close to the date. translationY puts them back without moving
-                     anything around them. -->
-                <TextClock
-                    android:id="@+id/clock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:gravity="center_vertical"
-                    android:translationY="-6dp"
-                    android:format12Hour="h:mm"
-                    android:format24Hour="HH:mm"
-                    android:textColor="#FFF5F5F5"
-                    android:textSize="48sp"
-                    android:fontFamily="@font/outfit_extralight"
-                    android:letterSpacing="-0.04"
-                    android:includeFontPadding="false" />
-
-                <TextClock
-                    android:id="@+id/ampm"
+                <!-- Kept for the code that sets it; B3 shows no greeting. -->
+                <TextView
+                    android:id="@+id/greeting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="6dp"
-                    android:format12Hour="a"
-                    android:format24Hour=""
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:orientation="horizontal"
+                    android:baselineAligned="true">
+
+                    <!-- 64px Outfit in a 64px line. Outfit's ascent and descent are taller than the line: Paper splits
+                         the overflow above and below, Android pins the text to the top, which drew the digits 8px
+                         (6dp) lower than the mockup, close to the date. translationY puts them back without moving
+                         anything around them. -->
+                    <TextClock
+                        android:id="@+id/clock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:gravity="center_vertical"
+                        android:translationY="-6dp"
+                        android:format12Hour="h:mm"
+                        android:format24Hour="HH:mm"
+                        android:textColor="#FFF5F5F5"
+                        android:textSize="48sp"
+                        android:fontFamily="@font/outfit_extralight"
+                        android:letterSpacing="-0.04"
+                        android:includeFontPadding="false" />
+
+                    <TextClock
+                        android:id="@+id/ampm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_gravity="bottom"
+                        android:layout_marginBottom="6dp"
+                        android:format12Hour="a"
+                        android:format24Hour=""
+                        android:textColor="#FFA3A3A3"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/outfit_medium"
+                        android:textAllCaps="true" />
+                </LinearLayout>
+
+                <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
+                <TextView
+                    android:id="@+id/shamsiDate"
+                    android:gravity="left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="3dp"
+                    android:singleLine="true"
                     android:textColor="#FFA3A3A3"
-                    android:textSize="12sp"
+                    android:textSize="14.25sp"
+                    android:fontFamily="@font/outfit_regular"
+                    android:visibility="gone" />
+
+                <!-- "Четверг, 22 октября": set by MainActivity with the clock tick, first letter capitalised,
+                     which TextClock cannot do. -->
+                <TextView
+                    android:id="@+id/date"
+                    android:gravity="left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1.5dp"
+                    android:paddingStart="3dp"
+                    android:singleLine="true"
+                    android:textColor="#FFA3A3A3"
+                    android:textSize="14.25sp"
+                    android:fontFamily="@font/outfit_regular"
+                    android:includeFontPadding="false" />
+
+                <!-- Shown only when show_stats is on. -->
+                <TextView
+                    android:id="@+id/stats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:paddingStart="3dp"
+                    android:singleLine="true"
+                    android:textColor="#FFA3A3A3"
+                    android:textSize="11sp"
                     android:fontFamily="@font/outfit_medium"
-                    android:textAllCaps="true" />
+                    android:focusable="false"
+                    android:visibility="gone" />
             </LinearLayout>
-
-            <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
-            <TextView
-                android:id="@+id/shamsiDate"
-                android:gravity="left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="3dp"
-                android:singleLine="true"
-                android:textColor="#FFA3A3A3"
-                android:textSize="14.25sp"
-                android:fontFamily="@font/outfit_regular"
-                android:visibility="gone" />
-
-            <!-- "Четверг, 22 октября": set by MainActivity with the clock tick, first letter capitalised,
-                 which TextClock cannot do. -->
-            <TextView
-                android:id="@+id/date"
-                android:gravity="left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1.5dp"
-                android:paddingStart="3dp"
-                android:singleLine="true"
-                android:textColor="#FFA3A3A3"
-                android:textSize="14.25sp"
-                android:fontFamily="@font/outfit_regular"
-                android:includeFontPadding="false" />
-
-            <!-- Shown only when show_stats is on. -->
-            <TextView
-                android:id="@+id/stats"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:paddingStart="3dp"
-                android:singleLine="true"
-                android:textColor="#FFA3A3A3"
-                android:textSize="11sp"
-                android:fontFamily="@font/outfit_medium"
-                android:focusable="false"
-                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Not clipped: the weather's focus plate reaches past this column by its own padding. -->

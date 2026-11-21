@@ -31,7 +31,7 @@
 #   com.google.android.tungsten.setupwraith        owns the saved Wi-Fi network (see above)
 #   mediatek.factorymenu.ui      factory menu - never launch it
 #   com.google.android.apps.mediashell, com.google.android.katniss   Chromecast, Assistant (kept by request)
-#   com.xiaomi.mitv.updateservice, com.mitv.upgrader   OTA kept on; updateservice also updates Rutube
+#   com.mitv.upgrader             firmware updater, kept on
 #   In use: ru.kinopoisk.tv, ru.ivi.client, ru.more.play (Okko), ru.rutube.app, gpm.tnt_premier,
 #           com.vk.tv, com.google.android.youtube.tv
 #
@@ -85,3 +85,8 @@ com.google.android.videos              # Google Play Movies
 com.google.android.youtube.tvmusic     # YouTube Music
 com.playstation.remoteplay             # PS Remote Play
 # ru.vk.store                          # RuStore: kept by the owner
+
+# Xiaomi's app updater. Turned off on 2026-11-21: it updated PatchWall (com.mitv.tvhome.atv, to 4.21.148) and
+# Mi TV+ on its own, and an update turns a disabled app back on, so PatchWall came up in place of the launcher.
+# It also installs apps. RuStore TV now updates Rutube and the other apps. Re-enable it to check for firmware.
+com.xiaomi.mitv.updateservice

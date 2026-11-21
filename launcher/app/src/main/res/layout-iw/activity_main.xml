@@ -77,7 +77,8 @@
         android:alpha="0"
         android:importantForAccessibility="no" />
 
-    <!-- Home: the Favourites row sits low (its tiles at 527px, where the All apps row started in the mockup);
+    <!-- Home: the Favourites row sits low (with five columns its tiles are at 527px, where the All apps row
+         started; MainActivity.homeGridTop places it from the bottom edge for any column count);
          the grid's 30dp top padding holds the "Favourites" title SectionDecoration draws. The Apps screen moves
          this frame up under the nav row (MainActivity.setScreen). It clips at its own top, so rows scroll up
          under its edge. -->

@@ -559,6 +559,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnApps.setOnClickListener(v -> showApps());
         gridFrame = findViewById(R.id.gridFrame);
         clockGroup = findViewById(R.id.clockGroup);
+        // The XML margin is the five-column top; once the screen has its size, place it for this column count.
+        root.post(() -> {
+            if (appsScreen) return;
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) gridFrame.getLayoutParams();
+            int top = homeGridTop();
+            if (lp.topMargin != top) {
+                lp.topMargin = top;
+                gridFrame.setLayoutParams(lp);
+            }
+        });
         weatherBlock = findViewById(R.id.weather);
         weather = new Weather(this, weatherBlock);
         btnReorder = findViewById(R.id.btnReorder);
@@ -1317,8 +1327,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     // ---- Home and the Apps screen ----------------------------------------------------------------
 
-    /** Grid top on Home: Favourites sit low, where the All apps row used to start (527px of 720). */
-    static final float HOME_GRID_TOP_DP = 365.25f;
+    /**
+     * Home: the Favourites row sits low, its focus plate 35px (of 720) above the bottom edge whatever the column
+     * count, as in the mockup. Five columns put the tiles at 527px, where the All apps row used to start; four
+     * columns' taller tiles start higher instead of pushing the plate off the screen.
+     */
+    static final float HOME_BOTTOM_GAP_DP = 26.25f;
     /** Grid top on the Apps screen: right under the nav row, the clock and the weather are hidden. */
     static final float APPS_GRID_TOP_DP = 102f;
 
@@ -1350,7 +1364,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         clockGroup.setVisibility(apps ? View.GONE : View.VISIBLE);
         weatherBlock.setVisibility(apps ? View.GONE : View.VISIBLE);
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) gridFrame.getLayoutParams();
-        int top = Math.round((apps ? APPS_GRID_TOP_DP : HOME_GRID_TOP_DP) * density);
+        int top = apps ? Math.round(APPS_GRID_TOP_DP * density) : homeGridTop();
         if (lp.topMargin != top) {
             lp.topMargin = top;
             gridFrame.setLayoutParams(lp);
@@ -1363,6 +1377,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         adapter.setDockOnly(!apps);
         ((GridLayoutManager) grid.getLayoutManager()).scrollToPositionWithOffset(0, 0);
         hideGlass();
+    }
+
+    /** The grid's top on Home: the dock's title room, tile and plate, then the bottom gap, up from the screen's bottom. */
+    private int homeGridTop() {
+        int width = root.getWidth() > 0 ? root.getWidth() : getResources().getDisplayMetrics().widthPixels;
+        int height = root.getHeight() > 0 ? root.getHeight() : getResources().getDisplayMetrics().heightPixels;
+        int inner = width - grid.getPaddingLeft() - grid.getPaddingRight();
+        int tile = AppAdapter.tileHeightPx(AppAdapter.tileWidthPx(inner, COLUMNS, density));
+        float below = PLATE_BELOW_DP * density + HOME_BOTTOM_GAP_DP * density;
+        int room = Math.round(SectionDecoration.TITLE_ROOM_DP * density);
+        return Math.max(0, Math.round(height - below - tile - room));
     }
 
     // ---- the tile menu (OK held on a tile) -------------------------------------------------------

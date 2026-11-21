@@ -7,18 +7,16 @@ tiles with their white logos, the time, the weather, and nothing else. stillOS i
 [cleanyourtv](https://github.com/Gathin23/cleanyourtv), made for a Xiaomi TV whose stock home screen put ads and
 recommendations in front of the apps.
 
-![stillOS Home: Netflix, YouTube, Prime Video and Disney+ in Favourites, the weather on the right](docs/stillos/home-en.png)
+![stillOS Home: the clock and the weather at the top, Netflix, YouTube, Prime Video and Disney+ in Favourites below](docs/stillos/home-en.png)
 
-<sub>Design mockup with the English interface and an international set of apps, made in Paper: the same screen the
-launcher draws.</sub>
+![The Apps screen: Favourites, then all apps, under the header](docs/stillos/apps-en.png)
+
+<sub>Home and the Apps screen with the English interface and an international set of apps: design mockups made in
+Paper, drawn to the launcher's layout pixel for pixel.</sub>
 
 ![stillOS Home on a Xiaomi MiTV-MOSR1 with the Russian interface](docs/stillos/home-ru.png)
 
 <sub>On the actual TV: a Xiaomi MiTV-MOSR1 with the Russian interface and the owner's apps.</sub>
-
-![The Apps screen on the TV: Favourites, then all apps, under the header](docs/stillos/apps-ru.png)
-
-<sub>The Apps screen on the TV.</sub>
 
 ## What it changes
 
@@ -42,9 +40,9 @@ launcher draws.</sub>
 - **Remote keys.** On the MiTV remote the Netflix key opens VK Video and ▦ opens the Apps screen. Change them in
   `launcher/app/src/main/res/values/config.xml` (`app_keys`).
 
-![The screensaver on the TV: clock and date on the left, weather on the right](docs/stillos/screensaver-ru.png)
+![The screensaver: clock and date on the left, weather on the right](docs/stillos/screensaver-en.png)
 
-<sub>The screensaver on the TV.</sub>
+<sub>The screensaver, mockup in English.</sub>
 
 ![All 28 logo tiles](docs/stillos/logos.png)
 

@@ -625,11 +625,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (festive) applyFestiveSkin((TextView) btnInputs, (TextView) btnSettings);
 
-        // Hide the glass when focus leaves the tiles.
-        getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
+        // Hide the glass when focus leaves the tiles. A field, removed in onDestroy: recreate() keeps the window,
+        // so a listener left on its tree kept every earlier activity alive.
+        glassFocusListener = (oldF, newF) -> {
             boolean onTile = newF != null && newF.getId() == R.id.card;
             if (!onTile) hideGlass();
-        });
+        };
+        getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener(glassFocusListener);
 
         packageFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         packageFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -637,7 +639,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         packageFilter.addDataScheme("package");
         timeFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
 
-        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        // From the application context: on Android 12 a ConnectivityManager keeps the context it was created with
+        // (its static instance and the callback Messenger the system holds), which kept old activities alive.
+        ConnectivityManager cm = getApplicationContext().getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (tim != null) tim.registerCallback(inputCallback, handler);
         if (cm != null) {
@@ -934,7 +938,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onDestroy();
         wallpaperPlayer.close();
         weather.destroy();
-        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        if (glassFocusListener != null) {
+            ViewTreeObserver vto = getWindow().getDecorView().getViewTreeObserver();
+            if (vto.isAlive()) vto.removeOnGlobalFocusChangeListener(glassFocusListener);
+        }
+        ConnectivityManager cm = getApplicationContext().getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (tim != null) tim.unregisterCallback(inputCallback);
         if (cm != null) {
@@ -1900,6 +1908,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private TextView btnHome, btnApps;
+    private ViewTreeObserver.OnGlobalFocusChangeListener glassFocusListener;
     private View weatherBlock;
     private Weather weather;
 
@@ -2137,7 +2146,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int flame = 0;
         boolean steady = false;
         try {
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = getApplicationContext().getSystemService(ConnectivityManager.class);
             boolean wifi = false, ethernet = false;
             // All networks, not just the active one: with a VPN up the active network is the VPN itself.
             for (Network net : cm != null ? cm.getAllNetworks() : new Network[0]) {
